@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-
 use App\Helper\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;

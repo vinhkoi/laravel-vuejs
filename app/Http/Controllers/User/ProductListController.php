@@ -12,18 +12,21 @@ use Inertia\Inertia;
 
 class ProductListController extends Controller
 {
-    //
-    public function index(){
+    public function index()
+    {
         $products = Product::with('category', 'brand', 'product_images');
         $filterProducts = $products->filtered()->paginate(12)->withQueryString();
 
-        $brands = Brand::get();
         $categories = Category::get();
-        return Inertia::render('User/ProductList',[
-            'categories'=>$categories,
+        $brands = Brand::get();
+
+        return Inertia::render(
+            'User/ProductList',
+            [
+                'categories'=>$categories,
                 'brands'=>$brands,
                 'products' => ProductResource::collection($filterProducts)
-        ]
-    );
+            ]
+        );
     }
 }

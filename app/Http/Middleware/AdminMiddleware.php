@@ -19,14 +19,5 @@ class AdminMiddleware
             return $next($request);
         }
         return redirect()->route('home')->with('error', 'Access denied. You are not an admin.');
-        // Debug thông tin về request
-    dd($request->all());
-
-    // Hoặc debug thông tin về user đang đăng nhập
-    dd(auth()->user());
-
-    // Logic kiểm tra quyền admin
-
-    return $next($request);
     }
 }

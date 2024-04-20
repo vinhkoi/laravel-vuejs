@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Illuminate\Database\Eloquent\Builder;
 
+use function PHPSTORM_META\map;
 
 class Product extends Model
 {
@@ -24,12 +26,15 @@ class Product extends Model
         'updated_by',
         'deleted_by',
     ];
-    public function getSlugOptions() : SlugOptions
+
+
+    public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
+            ->generateSlugsFrom('title')
             ->saveSlugsTo('slug');
     }
+
     public function product_images()
     {
         return $this->hasMany(ProductImage::class);
@@ -44,15 +49,20 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
-   public function cartItems()
+    public function cartItems()
     {
-        return $this->hasMany(CartItems::class);
+        return $this->hasMany(CartItem::class);
     }
-    public function scopeFiltered(Builder $quary){
-        $quary->when(request('brands'),function(Builder $q){
+
+
+    //filter logic for price or categories or brands 
+
+    public function  scopeFiltered(Builder $quary)  {
+        $quary
+        ->when(request('brands'), function (Builder $q)  {
             $q->whereIn('brand_id',request('brands'));
         })
-        ->when(request('categories'),function(Builder $q){
+        ->when(request('categories'), function (Builder $q)  {
             $q->whereIn('category_id',request('categories'));
         })
         ->when(request('prices'), function(Builder $q)  {
@@ -61,5 +71,6 @@ class Product extends Model
                 request('prices.to', 100000),
             ]);
         });
+        
     }
 }

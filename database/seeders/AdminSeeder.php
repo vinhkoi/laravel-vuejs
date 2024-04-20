@@ -14,17 +14,11 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-        User::Create([
-            'name' => 'admin',
+        User::create([
+            'name'=>'Admin',
             'email'=>'admin@vshop.com',
-            'password' => Hash::make('123456789'),
-            'isAdmin' =>1
+            'password'=>Hash::make('password'),
+            'isAdmin'=>1
         ]);
-
-        
-        
-
-
     }
 }

@@ -4,23 +4,21 @@ namespace App\Http\Controllers\User;
 
 use App\Helper\Cart;
 use App\Http\Controllers\Controller;
-use App\Models\CartItems;
+use App\Http\Resources\CartResource;
+use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\UserAddress;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Resources\CartResource;
-
 
 class CartController extends Controller
 {
     public function view(Request $request, Product $product)
     {
-
+       
         $user = $request->user();
         if ($user) {
-            $cartItems = CartItems::where('user_id', $user->id)->get();
+            $cartItems = CartItem::where('user_id', $user->id)->get();
             $userAddress = UserAddress::where('user_id', $user->id)->where('isMain', 1)->first();
             if ($cartItems->count() > 0) {
                 return Inertia::render(
@@ -30,8 +28,8 @@ class CartController extends Controller
                         'userAddress' => $userAddress
                     ]
                 );
-            }
-
+            } 
+            
         }
         else {
             $cartItems = Cart::getCookieCartItems();
@@ -43,18 +41,17 @@ class CartController extends Controller
             }
         }
     }
-
     public function store(Request $request, Product $product)
     {
         $quantity = $request->post('quantity', 1);
         $user = $request->user();
 
         if ($user) {
-            $cartItem = CartItems::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
+            $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
             if ($cartItem) {
                 $cartItem->increment('quantity');
             } else {
-                CartItems::create([
+                CartItem::create([
                     'user_id' => $user->id,
                     'product_id' => $product->id,
                     'quantity' => 1,
@@ -89,7 +86,7 @@ class CartController extends Controller
         $quantity = $request->integer('quantity');
         $user = $request->user();
         if ($user) {
-            CartItems::where(['user_id' => $user->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
+            CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
         } else {
             $cartItems = Cart::getCookieCartItems();
             foreach ($cartItems as &$item) {
@@ -106,15 +103,14 @@ class CartController extends Controller
     public function delete(Request $request, Product $product)
     {
         $user = $request->user();
-        if($user){
-            CartItems::query()->where(['user_id' => $user->id, 'product_id' => $product->id])->first()?->delete();
-            if (CartItems::count() <= 0) {
+        if ($user) {
+            CartItem::query()->where(['user_id' => $user->id, 'product_id' => $product->id])->first()?->delete();
+            if (CartItem::count() <= 0) {
                 return redirect()->route('home')->with('info', 'your cart is empty');
             } else {
                 return redirect()->back()->with('success', 'item removed successfully');
             }
-        }
-        else{
+        } else {
             $cartItems = Cart::getCookieCartItems();
             foreach ($cartItems as $i => &$item) {
                 if ($item['product_id'] === $product->id) {

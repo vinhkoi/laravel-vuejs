@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use  App\Models\Category;
+
 class CategorySeeder extends Seeder
 {
     /**
@@ -12,18 +13,17 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        //
         Category::create([
             'name' => 'Computer',
-            'slug' => 'computer',
+            'slug'=>'dell'
         ]);
         Category::create([
             'name' => 'Phone',
-            'slug' => 'phone',
+            'slug'=>'dell'
         ]);
         Category::create([
             'name' => 'Watch',
-            'slug' => 'watch',
+            'slug'=>'dell'
         ]);
     }
 }

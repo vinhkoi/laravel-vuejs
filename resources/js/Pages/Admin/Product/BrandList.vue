@@ -41,13 +41,13 @@
           :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           :rowsPerPageOptions="[5, 10, 25]"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} brands"
         >
           <template #header>
             <div
               class="flex flex-wrap gap-2 align-items-center justify-content-between aa"
             >
-              <h4 class="m-0">Manage Products</h4>
+              <h4 class="m-0">Manage Brand</h4>
               <div class="bb">
                 <IconField iconPosition="left">
                   <InputIcon>
@@ -123,7 +123,7 @@
       <Dialog
         v-model:visible="productDialog"
         :style="{ width: '450px' }"
-        header="Product Details"
+        header="Brand Details"
         :modal="true"
         class="p-fluid"
       >
@@ -172,44 +172,6 @@
               <Plus />
             </el-icon>
           </el-upload>
-          <!-- <FileUpload
-          v-model:file-list="productImages"
-          url="/upload-images"
-          @upload="onAdvancedUpload($event)"
-          :multiple="true"
-          accept="image/*"
-          :maxFileSize="1000000"
-        >
-          <template #empty>
-            <p>Drag and drop files to here to upload.</p>
-          </template>
-        </FileUpload> -->
-          <!-- <file-pond
-          name="product_images"
-          ref="pond"
-          v-bind:allow-multiple="true"
-          accepted-file-types="image/png, image/jpeg"
-          v-bind:server="{
-            url: 'http://127.0.0.1:8000/',
-            timeout: 7000,
-            process: {
-              url: '/upload-images',
-              method: 'POST',
-              headers: {
-                'X-CSRF-TOKEN': $page.props.csrf_token,
-              },
-
-              withCredentials: false,
-              onload: handleFilePondLoad,
-              onerror: () => {},
-            },
-            remove: handleFilePondRemove,
-            revert: handleFilePondRevert,
-          }"
-          v-model:file="productImages"
-          v-on:init="handleFilePondInit"
-        >
-        </file-pond> -->
         </div>
 
         <template #footer>
@@ -221,20 +183,20 @@
       <Dialog
         v-model:visible="editproductDialog"
         :style="{ width: '450px' }"
-        header="Product Details"
+        header="Brand Details"
         :modal="true"
         class="p-fluid"
       >
         <div class="field">
-          <label for="title">Name</label>
+          <label for="name">Name</label>
           <InputText
-            id="title"
+            id="name"
             v-model.trim="brand.name"
             required="true"
             autofocus
-            :class="{ 'p-invalid': submitted && !title }"
+            :class="{ 'p-invalid': submitted && !name }"
           />
-          <small class="p-error" v-if="submitted && !title">Name is required.</small>
+          <small class="p-error" v-if="submitted && !name">Name is required.</small>
         </div>
         <div class="field">
           <label for="description">Slug</label>
@@ -265,11 +227,9 @@
         </div>
         <div class="flex flex-nowrap mb-8">
           <div
-            v-for="(pimage, index) in brand.brand_images"
-            :key="pimage.id"
             class="relative w-32 h-32"
           >
-            <img class="w-24 h-20 rounded" :src="`/${pimage.image}`" alt="" />
+          <img class="w-24 h-20 rounded" :src="`/${brand.brand_image}`" alt="Brand Image" />
             <span
               class="absolute top-0 right-8 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"
             >
@@ -295,8 +255,8 @@
       >
         <div class="confirmation-content">
           <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-          <span v-if="product"
-            >Are you sure you want to delete <b>{{ product.title }}</b
+          <span v-if="brand"
+            >Are you sure you want to delete <b>{{ brand.name }}</b
             >?</span
           >
         </div>
@@ -341,13 +301,11 @@
 import { ref, onMounted } from "vue";
 import { FilterMatchMode } from "primevue/api";
 import { useToast } from "primevue/usetoast";
-import { ProductService } from "./ProductService.js";
 import axios from "axios";
 import { router, usePage } from "@inertiajs/vue3";
 import { Plus } from "@element-plus/icons-vue";
 
-const brands = usePage().props.brands;
-const categories = usePage().props.categories;
+
 
 defineProps({
   brands: Array,
@@ -359,19 +317,14 @@ const dt = ref();
 const id = ref("");
 const name = ref("");
 const slug = ref("");
+const brand_image = ref([]);
 
-const brand_images = ref([]);
-const published = ref("");
-const category_id = ref("");
-const brand_id = ref("");
-const inStock = ref("");
 const productDialog = ref(false);
 const dialogVisible = ref(false);
 const editproductDialog = ref(false);
 
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
-const product = ref({});
 const brand = ref({});
 
 const selectedProducts = ref();
@@ -380,18 +333,10 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
-const statuses = ref([
-  { label: "INSTOCK", value: "instock" },
-  { label: "LOWSTOCK", value: "lowstock" },
-  { label: "OUTOFSTOCK", value: "outofstock" },
-]);
 
-const formatCurrency = (value) => {
-  if (value) return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-  return;
-};
+
 const openNew = () => {
-  product.value = {};
+  brand.value = {};
   submitted.value = false;
   productDialog.value = true;
 };
@@ -400,48 +345,14 @@ const hideDialog = () => {
   submitted.value = false;
   editproductDialog.value = false;
 };
-const saveProduct = () => {
-  submitted.value = true;
 
-  if (product.value.name.trim()) {
-    if (product.value.id) {
-      product.value.inventoryStatus = product.value.inventoryStatus.value
-        ? product.value.inventoryStatus.value
-        : product.value.inventoryStatus;
-      products.value[findIndexById(product.value.id)] = product.value;
-      toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Product Updated",
-        life: 3000,
-      });
-    } else {
-      product.value.id = createId();
-      product.value.code = createId();
-      product.value.image = "product-placeholder.svg";
-      product.value.inventoryStatus = product.value.inventoryStatus
-        ? product.value.inventoryStatus.value
-        : "INSTOCK";
-      products.value.push(product.value);
-      toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Product Created",
-        life: 3000,
-      });
-    }
-
-    productDialog.value = false;
-    product.value = {};
-  }
-};
 const editProduct = (editProduct) => {
-  product.value = { ...editProduct };
+  brand.value = { ...editProduct };
   editproductDialog.value = true;
   console.log("Selected product:", editProduct);
 };
 const confirmDeleteProduct = (prod) => {
-  product.value = prod;
+  brand.value = prod;
   deleteProductDialog.value = true;
 };
 const deleteProductt = () => {
@@ -455,25 +366,8 @@ const deleteProductt = () => {
     life: 3000,
   });
 };
-const findIndexById = (id) => {
-  let index = -1;
-  for (let i = 0; i < products.value.length; i++) {
-    if (products.value[i].id === id) {
-      index = i;
-      break;
-    }
-  }
 
-  return index;
-};
-const createId = () => {
-  let id = "";
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < 5; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return id;
-};
+
 const exportCSV = () => {
   dt.value.exportCSV();
 };
@@ -492,21 +386,6 @@ const deleteSelectedProducts = () => {
   });
 };
 
-const getStatusLabel = (status) => {
-  switch (status) {
-    case "INSTOCK":
-      return "success";
-
-    case "LOWSTOCK":
-      return "warning";
-
-    case "OUTOFSTOCK":
-      return "danger";
-
-    default:
-      return null;
-  }
-};
 const dialogImageUrl = ref("");
 const handleFileChange = (file) => {
   console.log(file);
@@ -527,7 +406,7 @@ const AddProduct = async () => {
   formData.append("slug", slug.value);
   // Append product images to the FormData
   for (const image of brandImages.value) {
-    formData.append("brand_images[]", image.raw);
+    formData.append("brand_image[]", image.raw);
   }
   try {
     await router.post("brands/store", formData, {
@@ -548,12 +427,37 @@ const AddProduct = async () => {
     console.log(error);
   }
 };
+const updateProduct = async () => {
+  const formData = new FormData();
+  formData.append("name", brand.value.name);
+  formData.append("slug", brand.value.slug);
+  formData.append("_method", "PUT");
+  // Append product images to the FormData
+  for (const image of brandImages.value) {
+    formData.append("brand_image[]", image.raw);
+  }
+  try {
+    await router.post("brands/update/" + brand.value.id, formData, {
+      onSuccess: (page) => {
+        Swal.fire({
+          toast: true,
+          icon: "success",
+          position: "top-end",
+          showConfirmButton: false,
+          title: page.props.flash.success,
+        });
+        editproductDialog.value = false;
+        resetFormData();
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
 const resetFormData = () => {
   id.value = "";
-  title.value = "";
-  price.value = "";
-  quantity.value = "";
-  description.value = "";
+  name.value = "";
+  slug.value = "";
   brandImages.value = [];
   // dialogImageUrl.value = ''
 };
@@ -578,40 +482,10 @@ const deleteImage = async (pimage, index) => {
   }
 };
 
-const updateProduct = async () => {
-  const formData = new FormData();
-  formData.append("title", product.value.title);
-  formData.append("price", product.value.price);
-  formData.append("quantity", product.value.quantity);
-  formData.append("description", product.value.description);
-  formData.append("brand_id", product.value.brand_id);
-  formData.append("category_id", product.value.category_id);
-  formData.append("_method", "PUT");
-  // Append product images to the FormData
-  for (const image of brandImages.value) {
-    formData.append("brand_images[]", image.raw);
-  }
-  try {
-    await router.post("products/update/" + product.value.id, formData, {
-      onSuccess: (page) => {
-        Swal.fire({
-          toast: true,
-          icon: "success",
-          position: "top-end",
-          showConfirmButton: false,
-          title: page.props.flash.success,
-        });
-        editproductDialog.value = false;
-        resetFormData();
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
-};
+
 const deleteProduct = () => {
   try {
-    router.delete("products/destroy/" + product.value.id, {
+    router.delete("brands/destroy/" + brand.value.id, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,
@@ -801,5 +675,8 @@ const deleteProduct = () => {
 
 .p-button.p-button-danger.pi-trash {
   color: white;
+}
+.p-sortable-column{
+    width: auto !important;
 }
 </style>

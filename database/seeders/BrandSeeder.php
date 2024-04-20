@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Brand;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Brand;
+
 class BrandSeeder extends Seeder
 {
     /**
@@ -12,18 +13,17 @@ class BrandSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         Brand::create([
             'name' => 'Dell',
-            'slug' => 'dell',
+            'slug'=>'dell'
         ]);
         Brand::create([
             'name' => 'Samsung',
-            'slug' => 'samsung',
+            'slug'=>'dell'
         ]);
         Brand::create([
-            'name' => 'Asus',
-            'slug' => 'Asus',
+            'name' => 'Apple',
+            'slug'=>'dell'
         ]);
     }
 }

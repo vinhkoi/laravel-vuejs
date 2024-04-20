@@ -117,7 +117,7 @@
           headerStyle="width:14%; min-width:10rem;"
           ><template #body="slotProps">
             <span class="p-column-title">Price</span>
-            {{ slotProps.data.price }}
+            ${{ slotProps.data.price }}
           </template>
         </Column>
         <Column
@@ -260,44 +260,7 @@
             <Plus />
           </el-icon>
         </el-upload>
-        <!-- <FileUpload
-          v-model:file-list="productImages"
-          url="/upload-images"
-          @upload="onAdvancedUpload($event)"
-          :multiple="true"
-          accept="image/*"
-          :maxFileSize="1000000"
-        >
-          <template #empty>
-            <p>Drag and drop files to here to upload.</p>
-          </template>
-        </FileUpload> -->
-        <!-- <file-pond
-          name="product_images"
-          ref="pond"
-          v-bind:allow-multiple="true"
-          accepted-file-types="image/png, image/jpeg"
-          v-bind:server="{
-            url: 'http://127.0.0.1:8000/',
-            timeout: 7000,
-            process: {
-              url: '/upload-images',
-              method: 'POST',
-              headers: {
-                'X-CSRF-TOKEN': $page.props.csrf_token,
-              },
 
-              withCredentials: false,
-              onload: handleFilePondLoad,
-              onerror: () => {},
-            },
-            remove: handleFilePondRemove,
-            revert: handleFilePondRevert,
-          }"
-          v-model:file="productImages"
-          v-on:init="handleFilePondInit"
-        >
-        </file-pond> -->
       </div>
 
       <template #footer>
@@ -398,44 +361,6 @@
             <Plus />
           </el-icon>
         </el-upload>
-        <!-- <FileUpload
-          v-model:file-list="productImages"
-          url="/upload-images"
-          @upload="onAdvancedUpload($event)"
-          :multiple="true"
-          accept="image/*"
-          :maxFileSize="1000000"
-        >
-          <template #empty>
-            <p>Drag and drop files to here to upload.</p>
-          </template>
-        </FileUpload> -->
-        <!-- <file-pond
-          name="product_images"
-          ref="pond"
-          v-bind:allow-multiple="true"
-          accepted-file-types="image/png, image/jpeg"
-          v-bind:server="{
-            url: 'http://127.0.0.1:8000/',
-            timeout: 7000,
-            process: {
-              url: '/upload-images',
-              method: 'POST',
-              headers: {
-                'X-CSRF-TOKEN': $page.props.csrf_token,
-              },
-
-              withCredentials: false,
-              onload: handleFilePondLoad,
-              onerror: () => {},
-            },
-            remove: handleFilePondRemove,
-            revert: handleFilePondRevert,
-          }"
-          v-model:file="productImages"
-          v-on:init="handleFilePondInit"
-        >
-        </file-pond> -->
       </div>
       <div class="flex flex-nowrap mb-8">
         <div
@@ -512,20 +437,7 @@ import axios from "axios";
 import { router, usePage } from "@inertiajs/vue3";
 import { Plus } from "@element-plus/icons-vue";
 
-// import vueFilePond from "vue-filepond";
 
-// // Import plugins
-// import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
-// import FilePondPluginImagePreview from "filepond-plugin-image-preview";
-
-// // Import the plugin styles
-// import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-// // Import styles
-// import "filepond/dist/filepond.min.css";
-// import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
-
-// // Create FilePond component
-// const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 defineProps({
   products: Array,
@@ -564,11 +476,7 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
-const statuses = ref([
-  { label: "INSTOCK", value: "instock" },
-  { label: "LOWSTOCK", value: "lowstock" },
-  { label: "OUTOFSTOCK", value: "outofstock" },
-]);
+
 
 const formatCurrency = (value) => {
   if (value) return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
@@ -584,41 +492,7 @@ const hideDialog = () => {
   submitted.value = false;
   editproductDialog.value = false;
 };
-const saveProduct = () => {
-  submitted.value = true;
 
-  if (product.value.name.trim()) {
-    if (product.value.id) {
-      product.value.inventoryStatus = product.value.inventoryStatus.value
-        ? product.value.inventoryStatus.value
-        : product.value.inventoryStatus;
-      products.value[findIndexById(product.value.id)] = product.value;
-      toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Product Updated",
-        life: 3000,
-      });
-    } else {
-      product.value.id = createId();
-      product.value.code = createId();
-      product.value.image = "product-placeholder.svg";
-      product.value.inventoryStatus = product.value.inventoryStatus
-        ? product.value.inventoryStatus.value
-        : "INSTOCK";
-      products.value.push(product.value);
-      toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Product Created",
-        life: 3000,
-      });
-    }
-
-    productDialog.value = false;
-    product.value = {};
-  }
-};
 const editProduct = (editProduct) => {
   product.value = { ...editProduct };
   editproductDialog.value = true;
@@ -639,25 +513,7 @@ const deleteProductt = () => {
     life: 3000,
   });
 };
-const findIndexById = (id) => {
-  let index = -1;
-  for (let i = 0; i < products.value.length; i++) {
-    if (products.value[i].id === id) {
-      index = i;
-      break;
-    }
-  }
 
-  return index;
-};
-const createId = () => {
-  let id = "";
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < 5; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return id;
-};
 const exportCSV = () => {
   dt.value.exportCSV();
 };
@@ -676,21 +532,7 @@ const deleteSelectedProducts = () => {
   });
 };
 
-const getStatusLabel = (status) => {
-  switch (status) {
-    case "INSTOCK":
-      return "success";
 
-    case "LOWSTOCK":
-      return "warning";
-
-    case "OUTOFSTOCK":
-      return "danger";
-
-    default:
-      return null;
-  }
-};
 const dialogImageUrl = ref("");
 const handleFileChange = (file) => {
   console.log(file);

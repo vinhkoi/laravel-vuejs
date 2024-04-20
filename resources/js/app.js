@@ -1,17 +1,14 @@
 import './bootstrap';
 import '../css/app.css';
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
 
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
+
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import '../assets/styles.scss';
-import VueSweetalert2 from 'vue-sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
 
 import { PrimeIcons } from 'primevue/api';
 import AutoComplete from 'primevue/autocomplete';
@@ -123,7 +120,17 @@ import 'primevue/resources/themes/aura-light-green/theme.css'
 
 
 
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+
+//swal alart
+import VueSweetalert2 from 'vue-sweetalert2';
+// If you don't need the styles, do not connect
+import 'sweetalert2/dist/sweetalert2.min.css';
+
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -131,12 +138,12 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         const app =  createApp({ render: () => h(App, props) })
             app.use(plugin)
-            app.use(ZiggyVue)
+            app.use(ZiggyVue, Ziggy)
             app.use(ElementPlus)
+            app.use(VueSweetalert2),
             app.use(PrimeVue, { ripple: true })
             app.use(ToastService)
             app.use(PrimeIcons)
-            app.use(VueSweetalert2)
             window.Swal =  app.config.globalProperties.$swal
 
             app.directive('tooltip', Tooltip)
@@ -244,8 +251,7 @@ createInertiaApp({
             app.component('TreeTable', TreeTable)
             app.component('TriStateCheckbox', TriStateCheckbox)
             app.component('VirtualScroller', VirtualScroller)
-            app.mount(el);
-
+            app.mount(el)
 
     },
     progress: {

@@ -3,33 +3,21 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\DashboardController;
-use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\ProductListController;
 use App\Http\Controllers\User\UserController;
-use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-<<<<<<< Updated upstream
-Route::get('/', function () {
-    return view('welcome');
-=======
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+//user rotues
 
 Route::get('/', [UserController::class,'index'])->name('home');
 
@@ -42,7 +30,7 @@ Route::prefix('cart')->controller(CartController::class)->group(function(){
     Route::post('store/{product}','store')->name('cart.store');
     Route::patch('update/{product}','update')->name('cart.update');
     Route::delete('delete/{product}','delete')->name('cart.delete');
->>>>>>> Stashed changes
+
 });
 
 Route::prefix('products')->controller(ProductListController::class)->group(function(){
@@ -84,7 +72,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     //brand route
     Route::get('/brands',[BrandController::class,'index'])->name('admin.brands.index');
     Route::post('/brands/store',[BrandController::class,'store'])->name('admin.brands.store');
-
+    Route::put('/brands/update/{id}', [BrandController::class, 'update'])->name('admin.brands.update');
+    Route::delete('/brands/destroy/{id}',[BrandController::class,'destroy'])->name('admin.brands.destroy');
+    //category route
+    Route::get('/categories',[CategoryController::class,'index'])->name('admin.categories.index');
+    Route::post('/categories/store',[CategoryController::class,'store'])->name('admin.categories.store');
+    Route::put('/categories/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/categories/destroy/{id}',[CategoryController::class,'destroy'])->name('admin.categories.destroy');
+    //order route
+    Route::get('/orders',[OrderController::class,'index'])->name('admin.orders.index');
+    Route::get('/orders/show/{id}',[OrderController::class,'show'])->name('admin.orders.show');
+    Route::put('/orders/update/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
+    Route::delete('/orders/destroy/{id}',[OrderController::class,'destroy'])->name('admin.orders.destroy');
 });
 
 require __DIR__.'/auth.php';
+
