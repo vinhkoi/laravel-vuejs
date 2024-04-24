@@ -159,6 +159,7 @@ const updateProduct = async () => {
     console.log(err);
   }
 };
+
 const deleteProduct = (product, index) => {
   Swal.fire({
     title: "Are you Sure",

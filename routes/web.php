@@ -81,7 +81,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/categories/destroy/{id}',[CategoryController::class,'destroy'])->name('admin.categories.destroy');
     //order route
     Route::get('/orders',[OrderController::class,'index'])->name('admin.orders.index');
-    Route::get('/orders/show/{id}',[OrderController::class,'show'])->name('admin.orders.show');
     Route::put('/orders/update/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
     Route::delete('/orders/destroy/{id}',[OrderController::class,'destroy'])->name('admin.orders.destroy');
 });

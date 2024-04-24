@@ -260,7 +260,6 @@
             <Plus />
           </el-icon>
         </el-upload>
-
       </div>
 
       <template #footer>
@@ -437,8 +436,6 @@ import axios from "axios";
 import { router, usePage } from "@inertiajs/vue3";
 import { Plus } from "@element-plus/icons-vue";
 
-
-
 defineProps({
   products: Array,
 });
@@ -477,7 +474,6 @@ const filters = ref({
 });
 const submitted = ref(false);
 
-
 const formatCurrency = (value) => {
   if (value) return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
   return;
@@ -502,17 +498,6 @@ const confirmDeleteProduct = (prod) => {
   product.value = prod;
   deleteProductDialog.value = true;
 };
-const deleteProductt = () => {
-  products.value = products.value.filter((val) => val.id !== product.value.id);
-  deleteProductDialog.value = false;
-  product.value = {};
-  toast.add({
-    severity: "success",
-    summary: "Successful",
-    detail: "Product Deleted",
-    life: 3000,
-  });
-};
 
 const exportCSV = () => {
   dt.value.exportCSV();
@@ -531,7 +516,6 @@ const deleteSelectedProducts = () => {
     life: 3000,
   });
 };
-
 
 const dialogImageUrl = ref("");
 const handleFileChange = (file) => {

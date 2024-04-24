@@ -55,7 +55,7 @@ class Product extends Model
     }
 
 
-    //filter logic for price or categories or brands 
+    //filter logic for price or categories or brands
 
     public function  scopeFiltered(Builder $quary)  {
         $quary
@@ -71,6 +71,6 @@ class Product extends Model
                 request('prices.to', 100000),
             ]);
         });
-        
+
     }
 }
