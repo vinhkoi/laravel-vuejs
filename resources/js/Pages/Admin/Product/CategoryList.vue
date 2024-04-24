@@ -66,7 +66,7 @@
             ></Column>
 
             <Column
-              field="title"
+              field="id"
               header="ID Category"
               sortable
               headerStyle="width:14%; min-width:10rem;"
@@ -77,7 +77,7 @@
               </template>
             </Column>
             <Column
-              field="category.name"
+              field="name"
               header="Name"
               sortable
               headerStyle="width:14%; min-width:10rem;"
@@ -88,7 +88,7 @@
               </template>
             </Column>
             <Column
-              field="brand_id"
+              field="slug"
               header="Slug"
               sortable
               headerStyle="width:14%; min-width:10rem;"

@@ -5,11 +5,13 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\ProductListController;
 use App\Http\Controllers\User\UserController;
@@ -44,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('checkout')->controller(CheckoutController::class)->group(function(){
         Route::post('order','store')->name('checkout.store');
+        Route::post('COD','COD')->name('checkout.COD');
         Route::get('success','success')->name('checkout.success');
         Route::get('cancel','cancel')->name('checkout.cancel');
         // Route::post('payment','vnpay')->name('checkout.vnpay');
@@ -83,6 +86,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/orders',[OrderController::class,'index'])->name('admin.orders.index');
     Route::put('/orders/update/{id}', [OrderController::class, 'update'])->name('admin.orders.update');
     Route::delete('/orders/destroy/{id}',[OrderController::class,'destroy'])->name('admin.orders.destroy');
+    //payment route
+    Route::get('/payments',[PaymentsController::class,'index'])->name('admin.payments.index');
+    Route::put('/payments/update/{id}', [PaymentsController::class, 'update'])->name('admin.payments.update');
+    Route::delete('/payments/destroy/{id}',[PaymentsController::class,'destroy'])->name('admin.payments.destroy');
 });
 
 require __DIR__.'/auth.php';

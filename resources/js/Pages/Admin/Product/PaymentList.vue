@@ -33,7 +33,7 @@
 
         <DataTable
           ref="dt"
-          :value="brands"
+          :value="payments"
           v-model:selection="selectedProducts"
           dataKey="id"
           :paginator="true"
@@ -41,13 +41,13 @@
           :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           :rowsPerPageOptions="[5, 10, 25]"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} brands"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories"
         >
           <template #header>
             <div
               class="flex flex-wrap gap-2 align-items-center justify-content-between aa"
             >
-              <h4 class="m-0">Manage Brand</h4>
+              <h4 class="m-0">Manage Category</h4>
               <div class="bb">
                 <IconField iconPosition="left">
                   <InputIcon>
@@ -67,34 +67,54 @@
 
           <Column
             field="id"
-            header="ID Brand"
+            header="ID Category"
             sortable
             headerStyle="width:14%; min-width:10rem;"
           >
             <template #body="slotProps">
-              <span class="p-column-title">ID Brand</span>
+              <span class="p-column-title">ID Category</span>
               {{ slotProps.data.id }}
             </template>
           </Column>
           <Column
-            field="name"
-            header="Name"
+            field="order_id"
+            header="Order ID"
             sortable
             headerStyle="width:14%; min-width:10rem;"
           >
             <template #body="slotProps">
               <span class="p-column-title">Name</span>
-              {{ slotProps.data.name }}
+              {{ slotProps.data.order_id }}
             </template>
           </Column>
           <Column
-            field="slug"
-            header="Slug"
+            field="amount"
+            header="Price"
             sortable
             headerStyle="width:14%; min-width:10rem;"
             ><template #body="slotProps">
-              <span class="p-column-title">Slug</span>
-              {{ slotProps.data.slug }}
+              <span class="p-column-title">Price</span>
+              {{ slotProps.data.amount }}
+            </template>
+          </Column>
+          <Column
+            field="type"
+            header="Type"
+            sortable
+            headerStyle="width:14%; min-width:10rem;"
+            ><template #body="slotProps">
+              <span class="p-column-title">Type</span>
+              {{ slotProps.data.type }}
+            </template>
+          </Column>
+          <Column
+            field="status"
+            header="Status"
+            sortable
+            headerStyle="width:14%; min-width:10rem;"
+            ><template #body="slotProps">
+              <span class="p-column-title">Status</span>
+              {{ slotProps.data.status }}
             </template>
           </Column>
 
@@ -123,16 +143,16 @@
       <Dialog
         v-model:visible="productDialog"
         :style="{ width: '450px' }"
-        header="Brand Details"
+        header="Category Details"
         :modal="true"
         class="p-fluid"
       >
         <!-- <img
-        v-if="product.productImages"
-        :src="`product.productImages`"
-        :alt="product.productImages"
-        class="block m-auto pb-3"
-      /> -->
+          v-if="product.productImages"
+          :src="`product.productImages`"
+          :alt="product.productImages"
+          class="block m-auto pb-3"
+        /> -->
         <div class="field">
           <label for="title">Name</label>
           <InputText
@@ -157,23 +177,6 @@
           <small class="p-error" v-if="submitted && !slug">Slug is required.</small>
         </div>
 
-        <div class="card">
-          <el-upload
-            v-model:file-list="brandImages"
-            action="/upload-images"
-            method="post"
-            list-type="picture-card"
-            multiple
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-            :on-change="handleFileChange"
-          >
-            <el-icon class="avatar-uploader-icon">
-              <Plus />
-            </el-icon>
-          </el-upload>
-        </div>
-
         <template #footer>
           <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
           <Button label="Save" icon="pi pi-check" text @click="AddProduct" />
@@ -183,7 +186,7 @@
       <Dialog
         v-model:visible="editproductDialog"
         :style="{ width: '450px' }"
-        header="Brand Details"
+        header="Category Details"
         :modal="true"
         class="p-fluid"
       >
@@ -191,7 +194,7 @@
           <label for="name">Name</label>
           <InputText
             id="name"
-            v-model.trim="brand.name"
+            v-model.trim="category.name"
             required="true"
             autofocus
             :class="{ 'p-invalid': submitted && !name }"
@@ -202,45 +205,13 @@
           <label for="description">Slug</label>
           <InputText
             id="description"
-            v-model="brand.slug"
+            v-model="category.slug"
             required="true"
             rows="3"
             cols="20"
           />
         </div>
 
-        <div class="card">
-          <el-upload
-            v-model:file-list="brandImages"
-            action="/upload-images"
-            method="post"
-            list-type="picture-card"
-            multiple
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-            :on-change="handleFileChange"
-          >
-            <el-icon class="avatar-uploader-icon">
-              <Plus />
-            </el-icon>
-          </el-upload>
-        </div>
-        <div class="flex flex-nowrap mb-8">
-          <div
-            class="relative w-32 h-32"
-          >
-          <img class="w-24 h-20 rounded" :src="`/${brand.brand_image}`" alt="Brand Image" />
-            <span
-              class="absolute top-0 right-8 transform -translate-y-1/2 w-3.5 h-3.5 bg-red-400 border-2 border-white dark:border-gray-800 rounded-full"
-            >
-              <span
-                @click="deleteImage(pimage, index)"
-                class="text-white text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                >x</span
-              >
-            </span>
-          </div>
-        </div>
         <template #footer>
           <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
           <Button label="Save" icon="pi pi-check" text @click="updateProduct" />
@@ -255,8 +226,8 @@
       >
         <div class="confirmation-content">
           <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-          <span v-if="brand"
-            >Are you sure you want to delete <b>{{ brand.name }}</b
+          <span v-if="category"
+            >Are you sure you want to delete <b>{{ category.name }}</b
             >?</span
           >
         </div>
@@ -305,10 +276,8 @@ import axios from "axios";
 import { router, usePage } from "@inertiajs/vue3";
 import { Plus } from "@element-plus/icons-vue";
 
-
-
 defineProps({
-  brands: Array,
+  payments: Array,
 });
 
 import AdminLayout from "../Components/AdminLayout.vue";
@@ -317,7 +286,6 @@ const dt = ref();
 const id = ref("");
 const name = ref("");
 const slug = ref("");
-const brand_image = ref([]);
 
 const productDialog = ref(false);
 const dialogVisible = ref(false);
@@ -325,18 +293,17 @@ const editproductDialog = ref(false);
 
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
-const brand = ref({});
+const category = ref({});
 
 const selectedProducts = ref();
-const brandImages = ref([]);
+
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
 
-
 const openNew = () => {
-  brand.value = {};
+  category.value = {};
   submitted.value = false;
   productDialog.value = true;
 };
@@ -347,12 +314,12 @@ const hideDialog = () => {
 };
 
 const editProduct = (editProduct) => {
-  brand.value = { ...editProduct };
+  category.value = { ...editProduct };
   editproductDialog.value = true;
   console.log("Selected product:", editProduct);
 };
 const confirmDeleteProduct = (prod) => {
-  brand.value = prod;
+  category.value = prod;
   deleteProductDialog.value = true;
 };
 const deleteProductt = () => {
@@ -366,7 +333,6 @@ const deleteProductt = () => {
     life: 3000,
   });
 };
-
 
 const exportCSV = () => {
   dt.value.exportCSV();
@@ -387,29 +353,15 @@ const deleteSelectedProducts = () => {
 };
 
 const dialogImageUrl = ref("");
-const handleFileChange = (file) => {
-  console.log(file);
-  brandImages.value.push(file);
-};
 
-const handlePictureCardPreview = (file) => {
-  dialogImageUrl.value = file.url;
-  dialogVisible.value = true;
-};
-
-const handleRemove = (file) => {
-  console.log(file);
-};
 const AddProduct = async () => {
   const formData = new FormData();
   formData.append("name", name.value);
   formData.append("slug", slug.value);
   // Append product images to the FormData
-  for (const image of brandImages.value) {
-    formData.append("brand_image[]", image.raw);
-  }
+
   try {
-    await router.post("brands/store", formData, {
+    await router.post("categories/store", formData, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,
@@ -429,15 +381,13 @@ const AddProduct = async () => {
 };
 const updateProduct = async () => {
   const formData = new FormData();
-  formData.append("name", brand.value.name);
-  formData.append("slug", brand.value.slug);
+  formData.append("name", category.value.name);
+  formData.append("slug", category.value.slug);
   formData.append("_method", "PUT");
   // Append product images to the FormData
-  for (const image of brandImages.value) {
-    formData.append("brand_image[]", image.raw);
-  }
+
   try {
-    await router.post("brands/update/" + brand.value.id, formData, {
+    await router.post("categorys/update/" + category.value.id, formData, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,
@@ -458,34 +408,11 @@ const resetFormData = () => {
   id.value = "";
   name.value = "";
   slug.value = "";
-  brandImages.value = [];
-  // dialogImageUrl.value = ''
 };
-
-const deleteImage = async (pimage, index) => {
-  try {
-    console.log(pimage);
-    await router.delete("/admin/products/image/" + pimage.id, {
-      onSuccess: (page) => {
-        brandImages.value.splice(index, 1);
-        Swal.fire({
-          toast: true,
-          icon: "success",
-          position: "top-end",
-          showConfirmButton: false,
-          title: page.props.flash.success,
-        });
-      },
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 
 const deleteProduct = () => {
   try {
-    router.delete("brands/destroy/" + brand.value.id, {
+    router.delete("categories/destroy/" + category.value.id, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,
@@ -676,7 +603,7 @@ const deleteProduct = () => {
 .p-button.p-button-danger.pi-trash {
   color: white;
 }
-.p-sortable-column{
-    width: auto !important;
+.p-sortable-column {
+  width: auto !important;
 }
 </style>

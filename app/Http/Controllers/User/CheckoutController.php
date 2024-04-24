@@ -102,21 +102,97 @@ class CheckoutController extends Controller
                 // Cart::setCookieCartItems($cartItems);
             }
 
-            $paymentData = [
-                'order_id' => $order->id,
-                'amount' => $request->total,
-                'status' => 'pending',
-                'type' => 'stripe',
-                'created_by' => $user->id,
-                'updated_by' => $user->id,
-                // 'session_id' => $session->id
-            ];
+                // Dữ liệu thanh toán cho Stripe
+                $paymentData = [
+                    'order_id' => $order->id,
+                    'amount' => $request->total,
+                    'status' => 'pending',
+                    'type' => 'stripe',
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ];
+                Payment::create($paymentData);
 
-            Payment::create($paymentData);
+
         }
-        return Inertia::location($checkout_session->url);
-    }
+            return Inertia::location($checkout_session->url);
 
+     }
+     public function COD(Request $request)
+    {
+        $user = $request->user();
+        $carts = $request->carts;
+        $products = $request->products;
+
+        $mergedData = [];
+
+        foreach ($carts as $cartItem) {
+            foreach ($products as $product) {
+                if ($cartItem["product_id"] == $product["id"]) {
+                    $mergedData[] = array_merge($cartItem, ["title" => $product["title"], 'price' => $product['price']]);
+                }
+            }
+        }
+        $newAddress = $request->address;
+        if ($newAddress['address1'] != null) {
+            $address = UserAddress::where('isMain', 1)->count();
+            if ($address > 0) {
+                $address = UserAddress::where('isMain', 1)->update(['isMain' => 0]);
+            }
+            $address = new UserAddress();
+            $address->address1 = $newAddress['address1'];
+            $address->state = $newAddress['state'];
+            $address->zipcode = $newAddress['zipcode'];
+            $address->city = $newAddress['city'];
+            $address->country_code = $newAddress['country_code'];
+            $address->type = $newAddress['type'];
+            $address->user_id = Auth::user()->id;
+            $address->save();
+        }
+        $mainAddress = $user->user_address()->where('isMain', 1)->first();
+        if ($mainAddress) {
+            $order = new Order();
+            $order->status = 'unpaid';
+            $order->total_price = $request->total;
+            $order->created_by = $user->id;
+            $order->user_id = $user->id;
+            $order->user_address_id = $mainAddress->id;
+            $order->save();
+            $cartItems = CartItem::where(['user_id' => $user->id])->get();
+            foreach ($cartItems as $cartItem) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'quantity' => $cartItem->quantity,
+                    'unit_price' => $cartItem->product->price,
+                ]);
+                $cartItem->delete();
+
+                $cartItems = Cart::getCookieCartItems();
+                foreach ($cartItems as $item) {
+                    unset($item);
+                }
+                array_splice($cartItems, 0, count($cartItems));
+                Cart::setCookieCartItems($cartItems);
+            }
+            $paymentMethod = $request->paymentMethod;
+
+                // Dữ liệu thanh toán cho thanh toán khi nhận hàng
+                $paymentData = [
+                    'order_id' => $order->id,
+                    'amount' => $request->total,
+                    'status' => 'pending',
+                    'type' => 'cash_on_delivery',
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ];
+                Payment::create($paymentData);
+
+
+        }
+            // Nếu là Cash on Delivery, chuyển hướng đến trang dashboard
+            return redirect()->route('dashboard');
+     }
     public function success(Request $request)
     {
         \Stripe\Stripe::setApiKey(env('STRIPE_KEY'));
