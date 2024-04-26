@@ -4,13 +4,13 @@
       <div class="card">
         <Toolbar class="mb-4">
           <template #start>
-            <Button
+            <!-- <Button
               label="New"
               icon="pi pi-plus"
               severity="success"
               class="mr-2"
               @click="openNew"
-            />
+            /> -->
             <Button
               label="Delete"
               icon="pi pi-trash"
@@ -47,7 +47,7 @@
             <div
               class="flex flex-wrap gap-2 align-items-center justify-content-between aa"
             >
-              <h4 class="m-0">Manage Category</h4>
+              <h4 class="m-0">Manage Payment</h4>
               <div class="bb">
                 <IconField iconPosition="left">
                   <InputIcon>
@@ -67,12 +67,12 @@
 
           <Column
             field="id"
-            header="ID Category"
+            header="ID"
             sortable
             headerStyle="width:14%; min-width:10rem;"
           >
             <template #body="slotProps">
-              <span class="p-column-title">ID Category</span>
+              <span class="p-column-title">ID Payment</span>
               {{ slotProps.data.id }}
             </template>
           </Column>
@@ -104,7 +104,7 @@
             headerStyle="width:14%; min-width:10rem;"
             ><template #body="slotProps">
               <span class="p-column-title">Type</span>
-              {{ slotProps.data.type }}
+              {{ slotProps.data.type === "stripe" ? "Stripe" : "COD" }}
             </template>
           </Column>
           <Column
@@ -113,8 +113,19 @@
             sortable
             headerStyle="width:14%; min-width:10rem;"
             ><template #body="slotProps">
-              <span class="p-column-title">Status</span>
-              {{ slotProps.data.status }}
+              <span
+                class="p-tag p-component p-tag-warning"
+                v-if="slotProps.data.status == 'pending'"
+                >{{ slotProps.data.status }}</span
+              >
+              <span
+                class="p-tag p-component p-tag-danger"
+                v-else-if="slotProps.data.status === 'cancel'"
+                >{{ slotProps.data.status }}</span
+              >
+              <span class="p-tag p-component p-tag-success" v-else>{{
+                slotProps.data.status
+              }}</span>
             </template>
           </Column>
 
@@ -143,38 +154,72 @@
       <Dialog
         v-model:visible="productDialog"
         :style="{ width: '450px' }"
-        header="Category Details"
+        header="Payment Details"
         :modal="true"
         class="p-fluid"
       >
-        <!-- <img
-          v-if="product.productImages"
-          :src="`product.productImages`"
-          :alt="product.productImages"
-          class="block m-auto pb-3"
-        /> -->
         <div class="field">
-          <label for="title">Name</label>
+          <label for="description">Order ID</label>
           <InputText
-            id="title"
-            v-model.trim="name"
+            id="description"
+            v-model="order_id"
             required="true"
-            autofocus
-            :class="{ 'p-invalid': submitted && !title }"
+            rows="3"
+            cols="20"
           />
-          <small class="p-error" v-if="submitted && !title">Title is required.</small>
         </div>
-
         <div class="field">
-          <label for="slug">Slug</label>
+          <label for="description">Price</label>
+          <InputText id="amount" v-model="amount" required="true" rows="3" cols="20" />
+        </div>
+        <!-- <div class="field">
+          <label for="description">Type</label>
           <InputText
-            id="slug"
-            v-model.trim="slug"
+            id="type"
+            v-model="payment.type"
             required="true"
-            autofocus
-            :class="{ 'p-invalid': submitted && !slug }"
+            rows="3"
+            cols="20"
           />
-          <small class="p-error" v-if="submitted && !slug">Slug is required.</small>
+        </div> -->
+        <div class="field">
+          <label
+            for="countries"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Select Type</label
+          >
+          <select
+            v-model="type"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="stripe">Stripe</option>
+            <option value="cash_on_delivery">COD</option>
+          </select>
+        </div>
+        <!-- <div class="field">
+          <label for="description">Status</label>
+          <InputText
+            id="status"
+            v-model="payment.status"
+            required="true"
+            rows="3"
+            cols="20"
+          />
+        </div> -->
+        <div class="field">
+          <label
+            for="countries"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Status</label
+          >
+          <select
+            v-model="status"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="success">Success</option>
+            <option value="pending">Pending</option>
+            <option value="cancel">Cancel</option>
+          </select>
         </div>
 
         <template #footer>
@@ -186,30 +231,89 @@
       <Dialog
         v-model:visible="editproductDialog"
         :style="{ width: '450px' }"
-        header="Category Details"
+        header="Payment Details"
         :modal="true"
         class="p-fluid"
       >
         <div class="field">
-          <label for="name">Name</label>
+          <label for="name">ID</label>
           <InputText
-            id="name"
-            v-model.trim="category.name"
+            id="id"
+            v-model.trim="payment.id"
             required="true"
             autofocus
             :class="{ 'p-invalid': submitted && !name }"
           />
-          <small class="p-error" v-if="submitted && !name">Name is required.</small>
+          <small class="p-error" v-if="submitted && !name">ID is required.</small>
         </div>
         <div class="field">
-          <label for="description">Slug</label>
+          <label for="description">Order ID</label>
           <InputText
             id="description"
-            v-model="category.slug"
+            v-model="payment.order_id"
             required="true"
             rows="3"
             cols="20"
           />
+        </div>
+        <div class="field">
+          <label for="description">Price</label>
+          <InputText
+            id="amount"
+            v-model="payment.amount"
+            required="true"
+            rows="3"
+            cols="20"
+          />
+        </div>
+        <!-- <div class="field">
+          <label for="description">Type</label>
+          <InputText
+            id="type"
+            v-model="payment.type"
+            required="true"
+            rows="3"
+            cols="20"
+          />
+        </div> -->
+        <div class="field">
+          <label
+            for="countries"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Select Type</label
+          >
+          <select
+            v-model="payment.type"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="stripe">Stripe</option>
+            <option value="cash_on_delivery">COD</option>
+          </select>
+        </div>
+        <!-- <div class="field">
+          <label for="description">Status</label>
+          <InputText
+            id="status"
+            v-model="payment.status"
+            required="true"
+            rows="3"
+            cols="20"
+          />
+        </div> -->
+        <div class="field">
+          <label
+            for="countries"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Status</label
+          >
+          <select
+            v-model="payment.status"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="success">Success</option>
+            <option value="pending">Pending</option>
+            <option value="cancel">Cancel</option>
+          </select>
         </div>
 
         <template #footer>
@@ -226,8 +330,8 @@
       >
         <div class="confirmation-content">
           <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-          <span v-if="category"
-            >Are you sure you want to delete <b>{{ category.name }}</b
+          <span v-if="payment"
+            >Are you sure you want to delete <b>{{ payment.id }}</b
             >?</span
           >
         </div>
@@ -284,8 +388,10 @@ import AdminLayout from "../Components/AdminLayout.vue";
 const toast = useToast();
 const dt = ref();
 const id = ref("");
-const name = ref("");
-const slug = ref("");
+const order_id = ref("");
+const amount = ref("");
+const type = ref("");
+const status = ref("");
 
 const productDialog = ref(false);
 const dialogVisible = ref(false);
@@ -293,7 +399,7 @@ const editproductDialog = ref(false);
 
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
-const category = ref({});
+const payment = ref({});
 
 const selectedProducts = ref();
 
@@ -303,7 +409,7 @@ const filters = ref({
 const submitted = ref(false);
 
 const openNew = () => {
-  category.value = {};
+  payment.value = {};
   submitted.value = false;
   productDialog.value = true;
 };
@@ -314,12 +420,12 @@ const hideDialog = () => {
 };
 
 const editProduct = (editProduct) => {
-  category.value = { ...editProduct };
+  payment.value = { ...editProduct };
   editproductDialog.value = true;
   console.log("Selected product:", editProduct);
 };
 const confirmDeleteProduct = (prod) => {
-  category.value = prod;
+  payment.value = prod;
   deleteProductDialog.value = true;
 };
 const deleteProductt = () => {
@@ -356,12 +462,13 @@ const dialogImageUrl = ref("");
 
 const AddProduct = async () => {
   const formData = new FormData();
-  formData.append("name", name.value);
-  formData.append("slug", slug.value);
-  // Append product images to the FormData
+  formData.append("order_id", order_id.value);
+  formData.append("amount", amount.value);
+  formData.append("type", type.value);
+  formData.append("status", status.value);
 
   try {
-    await router.post("categories/store", formData, {
+    await router.post("payments/store", formData, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,
@@ -381,13 +488,15 @@ const AddProduct = async () => {
 };
 const updateProduct = async () => {
   const formData = new FormData();
-  formData.append("name", category.value.name);
-  formData.append("slug", category.value.slug);
+  formData.append("order_id", payment.value.order_id);
+  formData.append("amount", payment.value.amount);
+  formData.append("type", payment.value.type);
+  formData.append("status", payment.value.status);
   formData.append("_method", "PUT");
   // Append product images to the FormData
 
   try {
-    await router.post("categorys/update/" + category.value.id, formData, {
+    await router.post("payments/update/" + payment.value.id, formData, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,
@@ -405,14 +514,15 @@ const updateProduct = async () => {
   }
 };
 const resetFormData = () => {
-  id.value = "";
-  name.value = "";
-  slug.value = "";
+  order_id.value = "";
+  amount.value = "";
+  type.value = "";
+  status.value = "";
 };
 
 const deleteProduct = () => {
   try {
-    router.delete("categories/destroy/" + category.value.id, {
+    router.delete("payments/destroy/" + payment.value.id, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,

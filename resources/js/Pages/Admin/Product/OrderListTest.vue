@@ -1,6 +1,27 @@
 <template>
   <AdminLayout>
     <div class="card">
+      <Toolbar class="mb-4">
+        <template #start>
+          <Button
+            label="Delete"
+            icon="pi pi-trash"
+            severity="danger"
+            class="delete_btn"
+            @click="confirmDeleteSelected"
+            :disabled="!selectedProducts || !selectedProducts.length"
+          />
+        </template>
+
+        <template #end>
+          <Button
+            label="Export"
+            icon="pi pi-upload"
+            severity="help"
+            @click="exportCSV($event)"
+          />
+        </template>
+      </Toolbar>
       <DataTable
         ref="dt"
         v-model:expandedRows="expandedRows"
@@ -17,32 +38,49 @@
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
       >
         <template #header>
-          <div class="flex flex-wrap justify-content-end gap-2">
+          <div class="flex flex-wrap justify-content-end gap-2 c">
             <Button text icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
-            <Button
-              label="Export"
-              icon="pi pi-upload"
-              severity="help"
-              @click="exportCSV($event)"
-            />
+            <div class="bb">
+              <IconField iconPosition="left">
+                <InputIcon>
+                  <i class="pi pi-search" />
+                </InputIcon>
+                <InputText v-model="filters['global'].value" placeholder="Search..." />
+              </IconField>
+            </div>
           </div>
         </template>
         <Column expander style="width: 5rem" />
-        <Column field="title" header="ID" headerStyle="width:auto; min-width:10rem;">
+        <Column
+          sortable
+          field="id"
+          header="ID"
+          headerStyle="width:auto; min-width:10rem;"
+        >
           <template #body="slotProps">
             <span class="p-column-title">Title</span>
             {{ slotProps.data.id }}
           </template>
         </Column>
 
-        <Column field="title" header="Price" headerStyle="width:auto; min-width:10rem;">
+        <Column
+          sortable
+          field="total_price"
+          header="Price"
+          headerStyle="width:auto; min-width:10rem;"
+        >
           <template #body="slotProps">
             <span class="p-column-title">Title</span>
             {{ slotProps.data.total_price }}
           </template>
         </Column>
 
-        <Column header="Status" headerStyle="width:auto; min-width:10rem;">
+        <Column
+          sortable
+          field="status"
+          header="Status"
+          headerStyle="width:auto; min-width:10rem;"
+        >
           <template #body="slotProps">
             <span
               class="p-tag p-component p-tag-danger"
@@ -55,7 +93,11 @@
             }}</span>
           </template>
         </Column>
-        <Column header="Created by" headerStyle="width:auto; min-width:10rem;">
+        <Column
+          field="user.email"
+          header="Created by"
+          headerStyle="width:auto; min-width:10rem;"
+        >
           <template #body="slotProps">
             <span class="p-column-title">Title</span>
             {{ slotProps.data.user.email }}
@@ -76,22 +118,22 @@
         <template #expansion="slotProps">
           <div class="p-3" v-if="slotProps.data">
             <h5>Orders {{ slotProps.data.id }}</h5>
-            <DataTable :value="slotProps.data.order_items">
-              <Column field="status" header="Name">
+            <DataTable :value="slotProps.data.order_items" ref="dt">
+              <Column field="title" header="Name">
                 <template #body="slotProps">
                   <span class="p-column-title">Title</span>
                   {{ slotProps.data.product.title }}
                 </template>
               </Column>
-              <Column field="quantity" header="Quantity"></Column>
-              <Column field="unit_price" header="Price"></Column>
-              <Column field="product_id" header="Brand">
+              <Column sortable field="quantity" header="Quantity"></Column>
+              <Column sortable field="unit_price" header="Price"></Column>
+              <Column sortable field="product_id" header="Brand">
                 <template #body="slotProps">
                   <span class="p-column-title">Title</span>
                   {{ slotProps.data.product.brand.name }}
                 </template>
               </Column>
-              <Column field="product_id" header="Category">
+              <Column sortable field="product_id" header="Category">
                 <template #body="slotProps">
                   <span class="p-column-title">Title</span>
                   {{ slotProps.data.product.category.name }}
@@ -108,6 +150,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { FilterMatchMode } from "primevue/api";
 import { useToast } from "primevue/usetoast";
 import { ProductService } from "./ProductService.js";
 import { router, usePage } from "@inertiajs/vue3";
@@ -122,7 +165,9 @@ const expandedRows = ref({});
 const toast = useToast();
 console.log(orders);
 const dt = ref();
-
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
 const exportCSV = () => {
   dt.value.exportCSV();
 };
@@ -339,5 +384,9 @@ const deleteProduct = (orderId) => {
 }
 .columnheader {
   width: auto !important;
+}
+.c {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

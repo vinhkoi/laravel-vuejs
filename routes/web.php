@@ -88,6 +88,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/orders/destroy/{id}',[OrderController::class,'destroy'])->name('admin.orders.destroy');
     //payment route
     Route::get('/payments',[PaymentsController::class,'index'])->name('admin.payments.index');
+    Route::post('/payments/store',[PaymentsController::class,'store'])->name('admin.payments.store');
     Route::put('/payments/update/{id}', [PaymentsController::class, 'update'])->name('admin.payments.update');
     Route::delete('/payments/destroy/{id}',[PaymentsController::class,'destroy'])->name('admin.payments.destroy');
 });
