@@ -126,8 +126,14 @@
           sortable
           headerStyle="width:14%; min-width:10rem;"
           ><template #body="slotProps">
-            <span class="p-column-title">In Stock</span>
-            {{ slotProps.data.inStock }}
+            <span
+              class="p-tag p-component p-tag-success"
+              v-if="slotProps.data.inStock === 1"
+              >In Stock</span
+            >
+            <span class="p-tag p-component p-tag-danger" v-else>Out Stock</span>
+
+            <!-- {{ slotProps.data.inStock === 1 ? "IN STOCK" : "OUT STOCK" }} -->
           </template>
         </Column>
         <Column

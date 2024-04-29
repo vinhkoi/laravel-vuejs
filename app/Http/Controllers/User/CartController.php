@@ -88,6 +88,11 @@ class CartController extends Controller
     {
         $quantity = $request->integer('quantity');
         $user = $request->user();
+        $availableQuantity = $product->quantity;
+         if ($quantity > $availableQuantity) {
+        // Trả về thông báo lỗi
+        return response()->json(['error' => 'Số lượng sản phẩm trong kho không đủ'], 422);
+    }
         if ($user) {
             CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->update(['quantity' => $quantity]);
         } else {

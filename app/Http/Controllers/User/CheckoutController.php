@@ -8,6 +8,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,14 +93,14 @@ class CheckoutController extends Controller
                     'quantity' => $cartItem->quantity,
                     'unit_price' => $cartItem->product->price,
                 ]);
-                // $cartItem->delete();
-
-                // $cartItems = Cart::getCookieCartItems();
-                // foreach ($cartItems as $item) {
-                //     unset($item);
-                // }
-                // array_splice($cartItems, 0, count($cartItems));
-                // Cart::setCookieCartItems($cartItems);
+                $product = Product::find($cartItem->product_id);
+                if ($product) {
+                    $product->quantity -= $cartItem->quantity;
+                    if ($product->quantity == 0) {
+                        $product->inStock = 0; // Cập nhật cột inStock thành 0 nếu hết hàng
+                    }
+                    $product->save();
+                }
             }
 
                 // Dữ liệu thanh toán cho Stripe
@@ -112,11 +113,8 @@ class CheckoutController extends Controller
                     'updated_by' => $user->id,
                 ];
                 Payment::create($paymentData);
-
-
         }
             return Inertia::location($checkout_session->url);
-
      }
      public function COD(Request $request)
     {
@@ -166,6 +164,11 @@ class CheckoutController extends Controller
                     'quantity' => $cartItem->quantity,
                     'unit_price' => $cartItem->product->price,
                 ]);
+                $product = Product::find($cartItem->product_id);
+                if ($product) {
+                    $product->quantity -= $cartItem->quantity;
+                    $product->save();
+                }
                 $cartItem->delete();
 
                 $cartItems = Cart::getCookieCartItems();

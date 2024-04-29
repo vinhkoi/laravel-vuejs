@@ -3,7 +3,8 @@ import { ref, computed, reactive } from "vue";
 
 import UserLayouts from "./Layouts/UserLayouts.vue";
 import { router, usePage } from "@inertiajs/vue3";
-
+import { useToast } from "primevue/usetoast";
+const toast = useToast();
 defineProps({
   userAddress: Object,
 });
@@ -34,53 +35,34 @@ const formFilled = computed(() => {
   );
 });
 
-const update = (product, quantity) =>
-  router.patch(route("cart.update", product), {
-    quantity,
-  });
+const update = async (product, quantity) => {
+  try {
+    const response = await router.patch(route("cart.update", product), {
+      quantity,
+    });
+    if (response && response.status === 200) {
+      // Update successful
+    }
+  } catch (error) {
+    console.log(error);
+    if (error.response && error.response.status === 422) {
+      const responseData = error.response.data;
+      if (responseData && responseData.error) {
+        Swal.fire({
+          toast: true,
+          icon: "error",
+          position: "top-end",
+          showConfirmButton: false,
+          title: responseData.error,
+          timer: 5000, // Thời gian hiển thị toast (ms)
+        });
+      }
+    }
+  }
+};
 //remove form cart
 const remove = (product) => router.delete(route("cart.delete", product));
 
-//confirm order
-
-// function submit() {
-//   if (formFilled || userAddress) {
-//     if (paymentMethod === "stripe") {
-//       // Nếu chọn thanh toán Stripe, gọi router tương ứng
-//       router.visit(route("checkout.store"), {
-//         method: "post",
-//         data: {
-//           carts: usePage().props.cart.data.items,
-//           products: usePage().props.cart.data.products,
-//           total: usePage().props.cart.data.total,
-//           address: form,
-//         },
-//       });
-//     } else if (paymentMethod === "cash_on_delivery") {
-//       // Nếu chọn thanh toán COD, gọi router tương ứng
-//       router.visit(route("checkout.COD"), {
-//         method: "post",
-//         data: {
-//           carts: usePage().props.cart.data.items,
-//           products: usePage().props.cart.data.products,
-//           total: usePage().props.cart.data.total,
-//           address: form,
-//         },
-//       });
-//     }
-//     // router.visit(route("checkout.COD"), {
-//     //   method: "post",
-//     //   data: {
-//     //     carts: usePage().props.cart.data.items,
-//     //     products: usePage().props.cart.data.products,
-//     //     total: usePage().props.cart.data.total,
-//     //     address: form,
-//     //   },
-//     // });
-//   } else {
-//     alert("Please fill out the form completely before proceeding.");
-//   }
-// }
 function submit() {
   if ((formFilled || userAddress) && paymentMethod.value === "stripe") {
     // Thực hiện khi thanh toán bằng Stripe

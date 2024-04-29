@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
@@ -91,6 +92,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/payments/store',[PaymentsController::class,'store'])->name('admin.payments.store');
     Route::put('/payments/update/{id}', [PaymentsController::class, 'update'])->name('admin.payments.update');
     Route::delete('/payments/destroy/{id}',[PaymentsController::class,'destroy'])->name('admin.payments.destroy');
+    //manage user route
+    Route::get('/users',[UsersController::class,'index'])->name('admin.users.index');
+    Route::put('/users/update/{id}', [UsersController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/destroy/{id}',[UsersController::class,'destroy'])->name('admin.users.destroy');
 });
 
 require __DIR__.'/auth.php';
