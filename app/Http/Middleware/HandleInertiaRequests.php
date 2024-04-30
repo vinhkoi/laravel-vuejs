@@ -43,7 +43,7 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'cart' => new CartResource(Cart::getProductsAndCartItems()),
-
+            
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
