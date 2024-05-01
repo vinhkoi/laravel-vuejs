@@ -116,6 +116,8 @@ import TreeSelect from 'primevue/treeselect';
 import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
 import VirtualScroller from 'primevue/virtualscroller';
+import Chart from 'primevue/chart';
+
 import 'primevue/resources/themes/aura-light-green/theme.css'
 
 
@@ -243,7 +245,7 @@ createInertiaApp({
             app.component('Terminal', Terminal)
             app.component('TieredMenu', TieredMenu)
             app.component('Timeline', Timeline)
-
+            app.component('Chart', Chart);
             app.component('Toolbar', Toolbar)
             app.component('ToggleButton', ToggleButton)
             app.component('Tree', Tree)

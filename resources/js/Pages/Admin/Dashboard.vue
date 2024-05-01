@@ -79,7 +79,18 @@
       </div>
       <div
         class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4"
-      ></div>
+      >
+        <div class="card h-96">
+          <div class="card-header">
+            <h5 class="card-title">Order in month</h5>
+          </div>
+
+          <div class="card-body h-93">
+            <Chart type="bar" :data="chartData" :options="chartOptions" class="h-30rem" />
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div
           class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
@@ -119,9 +130,12 @@
 import { onMounted } from "vue";
 import { initFlowbite } from "flowbite";
 import AdminLayout from "./Components/AdminLayout.vue";
+
 // initialize components based on data attribute selectors
 onMounted(() => {
   initFlowbite();
+  chartData.value = setChartData();
+  chartOptions.value = setChartOptions();
 });
 defineProps({
   orders: Array,
@@ -130,7 +144,7 @@ defineProps({
 });
 import { ref, computed } from "vue";
 import { router, usePage } from "@inertiajs/vue3";
-
+import dayjs from "dayjs";
 // Nhận mảng order từ props
 const orders = usePage().props.orders;
 const totalRevenue = usePage().props.totalRevenue;
@@ -140,8 +154,135 @@ console.log(orders.length);
 const totalOrders = computed(() => {
   return orders.length;
 });
+
+const chartData = ref();
+const chartOptions = ref();
+
+const setChartData = () => {
+  const documentStyle = getComputedStyle(document.documentElement);
+
+  const chartData = {
+    labels: getPast30DaysLabels(),
+    datasets: [
+      {
+        type: "line",
+        label: "Total Revenue",
+        borderColor: documentStyle.getPropertyValue("--orange-500"),
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+        data: Array(30).fill(0), // Dữ liệu cho thanh line
+      },
+      {
+        type: "bar",
+        label: "Số lượng đơn hàng",
+        backgroundColor: documentStyle.getPropertyValue("--green-500"),
+        data: Array(30).fill(0), // Dữ liệu cho thanh bar
+        borderColor: "white",
+        borderWidth: 2,
+      },
+    ],
+  };
+  orders.forEach((order) => {
+    const date = new Date(order.created_at);
+    const dayIndex = getDayIndex(date);
+    const totalPrice = parseFloat(order.total_price);
+    const quantity = 1; // Đây là số lượng đơn hàng, bạn có thể thay đổi tùy thuộc vào dữ liệu của mình
+    if (!isNaN(dayIndex)) {
+      chartData.datasets[0].data[dayIndex] += totalPrice;
+      chartData.datasets[1].data[dayIndex] += quantity;
+    }
+  });
+
+  return chartData;
+};
+const getPast30DaysLabels = () => {
+  const labels = [];
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    labels.push(date.toLocaleDateString("en-US", { month: "short", day: "numeric" }));
+  }
+  return labels;
+};
+
+const getDayIndex = (date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  const diffInTime = today.getTime() - date.getTime();
+  const diffInDays = diffInTime / (1000 * 3600 * 24);
+  return 29 - diffInDays; // Trả về chỉ số ngược với ngày hiện tại trong mảng
+};
+// function groupOrdersByDate(orders) {
+//   const ordersByDate = {};
+//   for (const order of orders) {
+//     const orderDate = dayjs(order.created_at).format("YYYY-MM-DD");
+//     if (!ordersByDate[orderDate]) {
+//       ordersByDate[orderDate] = [];
+//     }
+//     ordersByDate[orderDate].push(order);
+//   }
+//   return ordersByDate;
+// }
+const setChartOptions = () => {
+  const documentStyle = getComputedStyle(document.documentElement);
+  const textColor = documentStyle.getPropertyValue("--text-color");
+  const textColorSecondary = documentStyle.getPropertyValue("--text-color-secondary");
+  const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+
+  return {
+    maintainAspectRatio: false,
+    aspectRatio: 0.6,
+    plugins: {
+      legend: {
+        labels: {
+          color: textColor,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: function (context) {
+            const label = context.parsed.x || ""; // Lấy ngày
+            const revenue = context.parsed.y.toLocaleString(); // Định dạng doanh số
+            return `${label}: đ${revenue}`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: textColorSecondary,
+          //   autoSkip: true,
+          //   maxRotation: 45,
+          //   minRotation: 45,
+
+          //   callback: function (value, index, ticks) {
+          //     return dayjs(value).format("MMM D"); // Ví dụ: Tháng 5 12
+          //   },
+        },
+        grid: {
+          color: surfaceBorder,
+        },
+      },
+      y: {
+        ticks: {
+          color: textColorSecondary,
+          callback: function (value, index, ticks) {
+            return "$" + value.toLocaleString();
+          },
+        },
+        grid: {
+          color: surfaceBorder,
+        },
+      },
+    },
+  };
+};
 </script>
-<style scoped>
+<style>
 .a {
   display: flex;
   flex-wrap: wrap;
@@ -195,5 +336,15 @@ const totalOrders = computed(() => {
 }
 .align-items-center {
   align-items: center !important;
+}
+.h-93 {
+  height: 22rem;
+}
+.p-chart {
+  height: 22rem;
+}
+.card-header {
+  display: flex;
+  justify-content: space-around;
 }
 </style>
