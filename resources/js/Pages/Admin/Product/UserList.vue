@@ -117,7 +117,8 @@
             headerStyle="width:14%; min-width:10rem;"
             ><template #body="slotProps">
               <span class="p-column-title">Role</span>
-              {{ slotProps.data.created_at }}
+              <!-- {{ slotProps.data.created_at }} -->
+              {{ formatDateTime(slotProps.data.created_at) }}
             </template>
           </Column>
 
@@ -400,6 +401,16 @@ const deleteProduct = () => {
   } catch (error) {
     console.log(error);
   }
+};
+const formatDateTime = (dateTimeString) => {
+  const dateTime = new Date(dateTimeString);
+  const year = dateTime.getFullYear();
+  const month = dateTime.getMonth() + 1;
+  const day = dateTime.getDate();
+  const hours = dateTime.getHours();
+  const minutes = dateTime.getMinutes();
+  const seconds = dateTime.getSeconds();
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 </script>
 <style>

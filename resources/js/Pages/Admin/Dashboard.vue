@@ -77,9 +77,7 @@
           </div>
         </div>
       </div>
-      <div
-        class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4"
-      >
+      <div class="border-2 rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4">
         <div class="card h-96">
           <div class="card-header">
             <h5 class="card-title">Order in month</h5>
@@ -90,37 +88,27 @@
           </div>
         </div>
       </div>
+      <div class="border-2 rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4">
+        <div class="card h-96">
+          <div class="card-header">
+            <h5 class="card-title">Order in 12 months</h5>
+          </div>
 
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
+          <div class="card-body h-93">
+            <Charts :orders="orders"></Charts>
+          </div>
+        </div>
       </div>
-      <div
-        class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4"
-      ></div>
-      <div class="grid grid-cols-2 gap-4">
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
-        <div
-          class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72"
-        ></div>
+      <div class="border-2 rounded-lg border-gray-300 dark:border-gray-600 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">New Order in 7 days</h5>
+          </div>
+
+          <div class="card-body">
+            <NewOrder :orders="orders"></NewOrder>
+          </div>
+        </div>
       </div>
     </div>
   </AdminLayout>
@@ -129,7 +117,12 @@
 <script setup>
 import { onMounted } from "vue";
 import { initFlowbite } from "flowbite";
+import { ref, computed } from "vue";
+import { router, usePage } from "@inertiajs/vue3";
+
 import AdminLayout from "./Components/AdminLayout.vue";
+import Charts from "./Product/Charts.vue";
+import NewOrder from "./Product/NewOrder.vue";
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -142,9 +135,7 @@ defineProps({
   totalRevenue: Array,
   totalUser: Array,
 });
-import { ref, computed } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
-import dayjs from "dayjs";
+
 // Nhận mảng order từ props
 const orders = usePage().props.orders;
 const totalRevenue = usePage().props.totalRevenue;
@@ -169,14 +160,16 @@ const setChartData = () => {
         label: "Total Revenue",
         borderColor: documentStyle.getPropertyValue("--orange-500"),
         borderWidth: 2,
+        yAxisID: "y1",
         fill: false,
         tension: 0.4,
         data: Array(30).fill(0), // Dữ liệu cho thanh line
       },
       {
         type: "bar",
-        label: "Số lượng đơn hàng",
-        backgroundColor: documentStyle.getPropertyValue("--green-500"),
+        label: " Order count",
+        yAxisID: "y",
+        backgroundColor: documentStyle.getPropertyValue("--cyan-500"),
         data: Array(30).fill(0), // Dữ liệu cho thanh bar
         borderColor: "white",
         borderWidth: 2,
@@ -187,7 +180,7 @@ const setChartData = () => {
     const date = new Date(order.created_at);
     const dayIndex = getDayIndex(date);
     const totalPrice = parseFloat(order.total_price);
-    const quantity = 1; // Đây là số lượng đơn hàng, bạn có thể thay đổi tùy thuộc vào dữ liệu của mình
+    const quantity = 1;
     if (!isNaN(dayIndex)) {
       chartData.datasets[0].data[dayIndex] += totalPrice;
       chartData.datasets[1].data[dayIndex] += quantity;
@@ -214,17 +207,7 @@ const getDayIndex = (date) => {
   const diffInDays = diffInTime / (1000 * 3600 * 24);
   return 29 - diffInDays; // Trả về chỉ số ngược với ngày hiện tại trong mảng
 };
-// function groupOrdersByDate(orders) {
-//   const ordersByDate = {};
-//   for (const order of orders) {
-//     const orderDate = dayjs(order.created_at).format("YYYY-MM-DD");
-//     if (!ordersByDate[orderDate]) {
-//       ordersByDate[orderDate] = [];
-//     }
-//     ordersByDate[orderDate].push(order);
-//   }
-//   return ordersByDate;
-// }
+
 const setChartOptions = () => {
   const documentStyle = getComputedStyle(document.documentElement);
   const textColor = documentStyle.getPropertyValue("--text-color");
@@ -255,19 +238,15 @@ const setChartOptions = () => {
       x: {
         ticks: {
           color: textColorSecondary,
-          //   autoSkip: true,
-          //   maxRotation: 45,
-          //   minRotation: 45,
-
-          //   callback: function (value, index, ticks) {
-          //     return dayjs(value).format("MMM D"); // Ví dụ: Tháng 5 12
-          //   },
         },
         grid: {
           color: surfaceBorder,
         },
       },
       y: {
+        type: "linear",
+        display: true,
+        position: "left",
         ticks: {
           color: textColorSecondary,
           callback: function (value, index, ticks) {
@@ -275,6 +254,18 @@ const setChartOptions = () => {
           },
         },
         grid: {
+          color: surfaceBorder,
+        },
+      },
+      y1: {
+        type: "linear",
+        display: true,
+        position: "right",
+        ticks: {
+          color: textColorSecondary,
+        },
+        grid: {
+          drawOnChartArea: false,
           color: surfaceBorder,
         },
       },
