@@ -21,5 +21,6 @@ class AdminController extends Controller
             'orders' => $orders,
             'totalRevenue' => $totalRevenue,
             'totalUser' => $totalUser,
+            'users'=>$user,
         ]);}
 }

@@ -84,11 +84,6 @@ const ordersWithinLast7Days = computed(() => {
   });
 });
 
-// Function để định dạng thời gian
-// const formatDateTimee = (dateTimeString) => {
-//   const dateTime = new Date(dateTimeString);
-//   return dateTime.toLocaleString();
-// };
 const formatDateTime = (dateTimeString) => {
   const dateTime = new Date(dateTimeString);
   const year = dateTime.getFullYear();

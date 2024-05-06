@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
@@ -96,6 +97,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users',[UsersController::class,'index'])->name('admin.users.index');
     Route::put('/users/update/{id}', [UsersController::class, 'update'])->name('admin.users.update');
     Route::delete('/users/destroy/{id}',[UsersController::class,'destroy'])->name('admin.users.destroy');
+    //manage banner route
+    Route::get('/banners',[BannerController::class,'index'])->name('admin.banners.index');
+    Route::post('/banners/store',[BannerController::class,'store'])->name('admin.banners.store');
+    Route::put('/banners/update/{id}', [BannerController::class, 'update'])->name('admin.banners.update');
+    Route::delete('/banners/destroy/{id}',[BannerController::class,'destroy'])->name('admin.banners.destroy');
 });
 
 require __DIR__.'/auth.php';

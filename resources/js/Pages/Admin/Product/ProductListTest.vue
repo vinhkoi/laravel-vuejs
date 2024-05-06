@@ -234,7 +234,34 @@
           </option>
         </select>
       </div>
-
+      <div class="field">
+        <label
+          for="published"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Published</label
+        >
+        <select
+          v-model="published"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option value="0">Unpublished</option>
+          <option value="1">Published</option>
+        </select>
+      </div>
+      <div class="field">
+        <label
+          for="isAdmin"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >InStock</label
+        >
+        <select
+          v-model="inStock"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option value="0">Out of Stock</option>
+          <option value="1">InStock</option>
+        </select>
+      </div>
       <div class="formgrid grid">
         <div class="field col">
           <label for="price">Price</label>
@@ -334,7 +361,34 @@
           </option>
         </select>
       </div>
-
+      <div class="field">
+        <label
+          for="published"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Published</label
+        >
+        <select
+          v-model="product.published"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option value="0">Unpublished</option>
+          <option value="1">Published</option>
+        </select>
+      </div>
+      <div class="field">
+        <label
+          for="isAdmin"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >InStock</label
+        >
+        <select
+          v-model="product.inStock"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option value="0">Out of Stock</option>
+          <option value="1">InStock</option>
+        </select>
+      </div>
       <div class="formgrid grid">
         <div class="field col">
           <label for="price">Price</label>
@@ -543,6 +597,8 @@ const AddProduct = async () => {
   formData.append("price", price.value);
   formData.append("quantity", quantity.value);
   formData.append("description", description.value);
+  formData.append("inStock", inStock.value);
+  formData.append("published", published.value);
   formData.append("brand_id", brand_id.value);
   formData.append("category_id", category_id.value);
   // Append product images to the FormData
@@ -574,6 +630,8 @@ const resetFormData = () => {
   price.value = "";
   quantity.value = "";
   description.value = "";
+  published.value = "";
+  inStock.value = "";
   productImages.value = [];
   // dialogImageUrl.value = ''
 };
@@ -604,6 +662,8 @@ const updateProduct = async () => {
   formData.append("price", product.value.price);
   formData.append("quantity", product.value.quantity);
   formData.append("description", product.value.description);
+  formData.append("inStock", product.value.inStock);
+  formData.append("published", product.value.published);
   formData.append("brand_id", product.value.brand_id);
   formData.append("category_id", product.value.category_id);
   formData.append("_method", "PUT");

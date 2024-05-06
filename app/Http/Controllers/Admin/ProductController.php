@@ -39,6 +39,8 @@ class ProductController extends Controller
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->description = $request->description;
+        $product->published = $request->published;
+        $product->inStock = $request->inStock;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
         $product->save();
@@ -73,6 +75,8 @@ class ProductController extends Controller
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->description = $request->description;
+        $product->published = $request->published;
+        $product->inStock = $request->inStock;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
         // Check if product images were uploaded

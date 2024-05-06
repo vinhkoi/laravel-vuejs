@@ -31,7 +31,7 @@ class BrandController extends Controller
                 $brand_image->move('brand_image', $uniqueName);
 
                 // Create a new product image record with the product_id and unique name
-                $brand->brand_image = $uniqueName;
+                $brand->brand_image = 'brand_image/'.$uniqueName;
                 $brand->save();
             }
         }
@@ -53,7 +53,7 @@ class BrandController extends Controller
                 $brand_image->move('brand_image', $uniqueName);
 
                 // Create a new product image record with the product_id and unique name
-                $brand->brand_image = $uniqueName;
+                $brand->brand_image = 'brand_image/'.$uniqueName;
                 $brand->save();
             }
         }

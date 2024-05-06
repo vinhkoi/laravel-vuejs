@@ -110,6 +110,17 @@
           </div>
         </div>
       </div>
+      <div class="border-2 rounded-lg border-gray-300 dark:border-gray-600 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">New User in 7 days</h5>
+          </div>
+
+          <div class="card-body">
+            <NewUser :users="users"></NewUser>
+          </div>
+        </div>
+      </div>
     </div>
   </AdminLayout>
 </template>
@@ -123,6 +134,7 @@ import { router, usePage } from "@inertiajs/vue3";
 import AdminLayout from "./Components/AdminLayout.vue";
 import Charts from "./Product/Charts.vue";
 import NewOrder from "./Product/NewOrder.vue";
+import NewUser from "./Product/NewUser.vue";
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -134,6 +146,7 @@ defineProps({
   orders: Array,
   totalRevenue: Array,
   totalUser: Array,
+  users: Array,
 });
 
 // Nhận mảng order từ props
