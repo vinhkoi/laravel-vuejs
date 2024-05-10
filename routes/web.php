@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductSaleController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
@@ -102,6 +103,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/banners/store',[BannerController::class,'store'])->name('admin.banners.store');
     Route::put('/banners/update/{id}', [BannerController::class, 'update'])->name('admin.banners.update');
     Route::delete('/banners/destroy/{id}',[BannerController::class,'destroy'])->name('admin.banners.destroy');
+    //manage flash sale route
+    Route::get('/sale',[ProductSaleController::class,'index'])->name('admin.sale.index');
+    Route::post('/sale/store',[ProductSaleController::class,'store'])->name('admin.sale.store');
+    Route::put('/sale/update/{id}', [ProductSaleController::class, 'update'])->name('admin.sale.update');
+    Route::delete('/sale/destroy/{id}',[ProductSaleController::class,'destroy'])->name('admin.sale.destroy');
 });
 
 require __DIR__.'/auth.php';

@@ -1,9 +1,10 @@
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 
 defineProps({
-  products: Array,
+  sales: Array,
 });
+const saless = usePage().props.sales;
 
 const addToCart = (product) => {
   console.log(product);
@@ -26,24 +27,20 @@ const addToCart = (product) => {
   <div
     class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"
   >
-    <div
-      v-for="product in products"
-      :key="product.id"
-      class="group relative product-border"
-    >
+    <div v-for="sale in saless" :key="sale.id" class="group relative product-border">
       <div
         class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none lg:h-80"
       >
         <img
-          v-if="product.product_images.length > 0"
-          :src="`/${product.product_images[0].image}`"
-          :alt="product.imageAlt"
+          v-if="sale.product_images.length > 0"
+          :src="`/${sale.product_images[0].image}`"
+          :alt="sale.imageAlt"
           class="h-full w-full object-cover object-center lg:h-full lg:w-full"
         />
         <img
           v-else
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png"
-          :alt="product.imageAlt"
+          :alt="sale.imageAlt"
           class="h-full w-full object-cover object-center lg:h-full lg:w-full"
         />
 
@@ -51,10 +48,10 @@ const addToCart = (product) => {
         <div
           class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer"
         >
-          <template v-if="product.inStock">
+          <template v-if="sale.inStock">
             <!-- Button Add to Cart -->
             <div class="bg-blue-700 p-2 rounded-full">
-              <a @click="addToCart(product)">
+              <a @click="addToCart(sale)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -73,7 +70,6 @@ const addToCart = (product) => {
             </div>
           </template>
           <template v-else>
-            <!-- Dòng chữ "OUT OF STOCK" -->
             <p class="bg-red-500 text-white p-2 rounded-full">OUT OF STOCK</p>
           </template>
           <div class="bg-blue-700 p-2 rounded-full ml-2">
@@ -106,11 +102,16 @@ const addToCart = (product) => {
         <div>
           <h3 class="text-sm text-gray-700">
             <span aria-hidden="true" class="" />
-            {{ product.title }}
+            {{ sale.title }}
           </h3>
-          <p class="mt-1 text-sm text-gray-500">{{ product.brand.name }}</p>
+          <p class="mt-1 text-sm text-gray-500">{{ sale.brand.name }}</p>
         </div>
-        <p class="text-sm font-medium text-gray-900">${{ product.price }}</p>
+        <div>
+          <p class="text-sm font-medium text-gray-900">
+            ${{ sale.flash_sale[0].discounted_price }}
+          </p>
+          <p class="text-sm font-medium text-gray-900">${{ sale.price }}</p>
+        </div>
       </div>
     </div>
   </div>

@@ -26,7 +26,11 @@ const addToCart = (product) => {
   <div
     class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"
   >
-    <div v-for="product in newProducts" :key="product.id" class="group relative">
+    <div
+      v-for="product in newProducts"
+      :key="product.id"
+      class="group relative product-border"
+    >
       <div
         class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none lg:h-80"
       >
@@ -69,7 +73,6 @@ const addToCart = (product) => {
             </div>
           </template>
           <template v-else>
-            <!-- Dòng chữ "OUT OF STOCK" -->
             <p class="bg-red-500 text-white p-2 rounded-full">OUT OF STOCK</p>
           </template>
           <div class="bg-blue-700 p-2 rounded-full ml-2">
@@ -111,3 +114,11 @@ const addToCart = (product) => {
     </div>
   </div>
 </template>
+<style scoped>
+.product-border {
+  border: 2px solid #e5e7eb; /* Màu viền */
+  border-radius: 8px; /* Bo góc */
+  padding: 16px; /* Khoảng cách giữa các sản phẩm */
+  background-color: #f5f5f5;
+}
+</style>

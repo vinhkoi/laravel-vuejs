@@ -53,7 +53,10 @@ class Product extends Model
     {
         return $this->hasMany(CartItem::class);
     }
-
+    public function flashSale()
+    {
+        return $this->hasMany(ProductFlashSale::class);
+    }
 
     //filter logic for price or categories or brands
 
