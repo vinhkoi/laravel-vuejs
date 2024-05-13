@@ -202,8 +202,18 @@ function submit() {
                   </div>
                 </td>
                 <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                  ${{ product.price }}
+                  <span
+                    v-if="
+                      product.flashSale &&
+                      product.flashSale[0] &&
+                      product.flashSale[0].discounted_price
+                    "
+                  >
+                    ${{ product.flashSale[0].discounted_price }}
+                  </span>
+                  <span v-else> ${{ product.price }} </span>
                 </td>
+
                 <td class="px-6 py-4">
                   <a
                     @click="remove(product)"
@@ -351,5 +361,8 @@ function submit() {
 .btn {
   display: flex;
   justify-content: space-around;
+}
+.a {
+  text-decoration: line-through;
 }
 </style>

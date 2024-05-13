@@ -107,10 +107,12 @@ const addToCart = (product) => {
           <p class="mt-1 text-sm text-gray-500">{{ sale.brand.name }}</p>
         </div>
         <div>
-          <p class="text-sm font-medium text-gray-900">
+          <p class="text-sm font-medium text-gray-900 sale-price">
             ${{ sale.flash_sale[0].discounted_price }}
           </p>
-          <p class="text-sm font-medium text-gray-900">${{ sale.price }}</p>
+          <p class="text-sm font-medium text-gray-900 original-price">
+            ${{ sale.price }}
+          </p>
         </div>
       </div>
     </div>
@@ -122,5 +124,11 @@ const addToCart = (product) => {
   border-radius: 8px; /* Bo góc */
   padding: 16px; /* Khoảng cách giữa các sản phẩm */
   background-color: #f5f5f5;
+}
+.original-price {
+  text-decoration: line-through;
+}
+.sale-price {
+  color: red;
 }
 </style>

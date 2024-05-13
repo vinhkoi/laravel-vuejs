@@ -94,7 +94,7 @@ class Cart
         $cartItems = self::getCartItems();
 
         $ids = Arr::pluck($cartItems, 'product_id');
-        $products = Product::whereIn('id', $ids)->with('product_images')->get();
+        $products = Product::whereIn('id', $ids)->with('product_images','flashSale','category','brand')->get();
         $cartItems = Arr::keyBy($cartItems, 'product_id');
         return [$products, $cartItems];
     }

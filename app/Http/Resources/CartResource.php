@@ -19,10 +19,15 @@ class CartResource extends JsonResource
         [$products, $cartItems] = $this->resource;
         return [
             'count' => Cart::getCount(),
-            'total' => $products->reduce(fn (?float $carry, Product $product) => $carry + $product->price * $cartItems[$product->id]['quantity']),
+            // 'total' => $products->reduce(fn (?float $carry, Product $product) => $carry + $product->price * $cartItems[$product->id]['quantity']),
+            'total' => $products->reduce(function (?float $carry, Product $product) use ($cartItems) {
+                $price = $product->flashSale->first() && $product->flashSale->first()->discounted_price
+                    ? $product->flashSale->first()->discounted_price
+                    : $product->price;
+                return $carry + $price * $cartItems[$product->id]['quantity'];
+            }),
             'items' => $cartItems,
             'products' => ProductResource::collection($products),
         ];
-
     }
 }

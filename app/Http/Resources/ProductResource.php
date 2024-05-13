@@ -33,8 +33,12 @@ class ProductResource extends JsonResource
             'category' => new CategoryResource($this->whenLoaded('category')),
             'brand_id' => $this->brand_id,
             'brand' => new BrandResource($this->whenLoaded('brand')),
+            // 'flashSale' => new ProductFlashSaleResource($this->whenLoaded('flashSale')),
+            'flashSale' => $this->whenLoaded('flashSale', function () {
+                return ProductFlashSaleResource::collection($this->flashSale);
+            }),
 
-       
+
         ];
     }
 }
