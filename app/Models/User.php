@@ -50,4 +50,8 @@ class User extends Authenticatable
     // function orders() {
     //     return $this->hasMany(Order::class);
     // }
+    public function chirps()
+    {
+        return $this->hasMany(Chirp::class);
+    }
 }

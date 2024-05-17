@@ -73,7 +73,7 @@ const addToCart = (product) => {
             <p class="bg-red-500 text-white p-2 rounded-full">OUT OF STOCK</p>
           </template>
           <div class="bg-blue-700 p-2 rounded-full ml-2">
-            <a href="detail">
+            <Link :href="route('detail.view', { id: sale.id })">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -93,7 +93,7 @@ const addToCart = (product) => {
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
         <!-- end -->

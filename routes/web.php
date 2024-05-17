@@ -10,10 +10,12 @@ use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductSaleController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\User\DetailController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\ProductListController;
@@ -29,6 +31,8 @@ Route::get('/', [UserController::class,'index'])->name('home');
 //user route
 Route::get('/dashboard', [DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
+
+
 //add to cart
 Route::prefix('cart')->controller(CartController::class)->group(function(){
     Route::get('view','view')->name('cart.view');
@@ -37,7 +41,13 @@ Route::prefix('cart')->controller(CartController::class)->group(function(){
     Route::delete('delete/{product}','delete')->name('cart.delete');
 
 });
+//detail
+Route::prefix('detail')->controller(DetailController::class)->group(function(){
+    Route::get('view/{id}','view')->name('detail.view');
+    Route::post('/view/{id}/store',[DetailController::class,'store'])->name('detail.store');
+    Route::patch('chirps/update{id}',[DetailController::class,'update'])->name('detail.update');
 
+});
 Route::prefix('products')->controller(ProductListController::class)->group(function(){
     Route::get('/','index')->name('products.index');
 });
@@ -55,7 +65,11 @@ Route::middleware('auth')->group(function () {
         // Route::post('payment','vnpay')->name('checkout.vnpay');
     });
     // Route::post('/vnpay',[PaymentController::class,'index'])->name('vnpay.index');;
+
 });
+// Route::resource('chirps', ChirpController::class)
+//     ->only(['index', 'store'])
+//     ->middleware(['auth', 'verified']);
 Route::post('/vnpay',[CheckoutController::class,'vnpay'])->name('checkout.vnpay');;
 
 //admin route
