@@ -1,26 +1,33 @@
 <script setup>
-import UserLayouts from "./Layouts/UserLayouts.vue";
+import UserLayout from "./Layouts/UserLayout.vue";
 import DashboardTable from "./Components/DashboardTable.vue";
+// import Sidebarr from "./Layouts/Sidebarr.vue";
+import { onMounted } from "vue";
+import { initFlowbite } from "flowbite";
+import { ref } from "vue";
+
+const visible = ref(false);
 defineProps({
   orders: Array,
   //   orderItems: Array,
 });
+onMounted(() => {
+  initFlowbite();
+});
 </script>
 <template>
-  <UserLayouts>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-      <Card class="shadow-md">
-        <template #title>
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Danh sách đơn hàng</h2>
-          </div>
-        </template>
-        <template #content>
-          <DashboardTable :orders="orders" />
-        </template>
-      </Card>
-    </div>
-  </UserLayouts>
+  <UserLayout>
+    <Card class="shadow-md">
+      <template #title>
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Danh sách đơn hàng</h2>
+        </div>
+      </template>
+      <template #content>
+        <DashboardTable :orders="orders" />
+      </template>
+    </Card>
+  </UserLayout>
 </template>
 
 <style scoped>

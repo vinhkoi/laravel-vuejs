@@ -29,9 +29,19 @@ use Inertia\Inertia;
 Route::get('/', [UserController::class,'index'])->name('home');
 
 //user route
-Route::get('/dashboard', [DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::prefix('user')->controller(DashboardController::class)->group(function(){
+    Route::get('/dashboard', [DashboardController::class,'welcome'])->name('user.dashboard');
+    Route::get('/order', [DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('user.order');
+    Route::get('/address', [DashboardController::class,'address'])->name('user.address');
+    Route::get('/dashboardd', [DashboardController::class,'test'])->name('user.dashboardd');
 
 
+});
+    Route::get('/dashboard', [DashboardController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route::get('/dashboardd', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboardd');
 
 //add to cart
 Route::prefix('cart')->controller(CartController::class)->group(function(){
@@ -50,7 +60,11 @@ Route::prefix('detail')->controller(DetailController::class)->group(function(){
 });
 Route::prefix('products')->controller(ProductListController::class)->group(function(){
     Route::get('/','index')->name('products.index');
+    Route::get('/search', 'search')->name('products.search'); // Thêm route tìm kiếm vào group
+
 });
+//search
+// Route::get('/products/search', [ProductListController::class, 'search'])->name('product.search');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
