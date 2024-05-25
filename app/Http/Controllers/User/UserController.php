@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use App\Models\Product;
 use App\Models\ProductFlashSale;
+use App\Models\Wishlist;
 use Carbon\Carbon;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class UserController extends Controller
 {
     public function index()
     {
+
         // Lấy ngày trước 1 tháng từ hiện tại
         $oneMonthAgo = Carbon::now()->subMonth();
 
@@ -40,5 +42,11 @@ class UserController extends Controller
             'laravelVersion' => Application::VERSION,
             'phpVersion' => PHP_VERSION,
         ]);
+    }
+    public function about(){
+        return Inertia::render('User/About');
+    }
+    public function contact(){
+        return Inertia::render('User/Contact');
     }
 }

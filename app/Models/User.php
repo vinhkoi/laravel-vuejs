@@ -54,4 +54,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chirp::class);
     }
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }

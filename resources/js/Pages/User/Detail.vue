@@ -1,6 +1,6 @@
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
-import { ref, onMounted } from "vue";
+import { Link, router, usePage } from "@inertiajs/vue3";
+import { ref, onMounted, computed } from "vue";
 import Chirp from "./Components/Chirp.vue";
 import UserLayouts from "./Layouts/UserLayouts.vue";
 //products list
@@ -41,7 +41,33 @@ const getSeverity = (status) => {
       return null;
   }
 };
+const product = usePage().props.product;
+const auth = usePage().props.auth;
 
+const wishlist = computed(() => usePage().props.wishlistt.data); // Lấy dữ liệu wishlist từ props
+
+const isInWishlist = computed(() => {
+  return wishlist.value.data.some(
+    (item) => item.product_id === product.id && item.user_id === auth.user.id
+  );
+});
+const addToWishList = (product) => {
+  console.log(product);
+  router.post(route("wishlist.store", product), {
+    onSuccess: (page) => {
+      if (page.props.flash.success) {
+        Swal.fire({
+          toast: true,
+          icon: "success",
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          title: page.props.flash.success,
+        });
+      }
+    },
+  });
+};
 const addToCart = (product) => {
   console.log(product);
   router.post(route("cart.store", product), {
@@ -201,7 +227,9 @@ const addToCartt = (product) => {
                 Add to Cart
               </button>
               <button
+                :class="{ 'text-red-500': isInWishlist }"
                 class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4"
+                @click="addToWishList(product)"
               >
                 <svg
                   fill="currentColor"

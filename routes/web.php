@@ -20,6 +20,7 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\ProductListController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,7 +28,8 @@ use Inertia\Inertia;
 //user rotues
 
 Route::get('/', [UserController::class,'index'])->name('home');
-
+Route::get('/about', [UserController::class,'about'])->name('about');
+Route::get('/contact', [UserController::class,'contact'])->name('contact');
 //user route
 Route::prefix('user')->controller(DashboardController::class)->group(function(){
     Route::get('/dashboard', [DashboardController::class,'welcome'])->name('user.dashboard');
@@ -43,6 +45,13 @@ Route::prefix('user')->controller(DashboardController::class)->group(function(){
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboardd');
 
+//wishlist
+Route::prefix('wishlist')->controller(WishlistController::class)->group(function(){
+    Route::get('view','view')->name('wishlist.view');
+    Route::post('store/{product}','store')->name('wishlist.store');
+    Route::delete('delete/{product}','delete')->name('wishlist.delete');
+
+});
 //add to cart
 Route::prefix('cart')->controller(CartController::class)->group(function(){
     Route::get('view','view')->name('cart.view');

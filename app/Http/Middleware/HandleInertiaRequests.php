@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Helper\Cart;
 use App\Http\Resources\CartResource;
+use App\Http\Resources\WishlistResource;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -43,7 +44,10 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'cart' => new CartResource(Cart::getProductsAndCartItems()),
-            
+            'wishlistt' => fn () => [
+                'data' => $request->user() ? WishlistResource::collection($request->user()->wishlists()->with('product')->get()) : [],
+                'count' => $request->user() ? $request->user()->wishlists()->count() : 0, // Tính số lượng sản phẩm
+            ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
