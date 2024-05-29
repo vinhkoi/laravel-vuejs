@@ -36,9 +36,12 @@ class ProductListController extends Controller
 
         return $products->filtered()->paginate(12)->withQueryString();
     }
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::with('category', 'brand', 'product_images');
+        if ($categoryId = $request->query('category')) {
+            $products->where('category_id', $categoryId);
+        }
         $filterProducts = $products->filtered()->paginate(12)->withQueryString();
 
         $categories = Category::get();
@@ -53,41 +56,7 @@ class ProductListController extends Controller
             ]
         );
     }
-    // public function search(Request $request)
-    // {
-    //     $query = $request->input('query'); // Lấy từ khóa từ query parameter
 
-    //     // Tìm kiếm sản phẩm (sử dụng Eloquent hoặc truy vấn SQL)
-    //     $products = Product::with('category', 'brand', 'product_images')
-    //         ->where('title', 'like', "%$query%") // Tìm theo tên sản phẩm
-    //         ->orWhere('description', 'like', "%$query%") // Tìm theo mô tả
-    //         ->filtered()
-    //         ->paginate(12)
-    //         ->withQueryString();
-
-    //     $categories = Category::get();
-    //     $brands = Brand::get();
-    //     // Trả về kết quả tìm kiếm
-    //     return Inertia::render('User/ProductSearch', [
-    //         'products' => ProductResource::collection($products),
-    //         'query' => $query,
-    //         'categories' => $categories,
-    //         'brands' => $brands,
-    //     ]);
-    // }
-    // public function search(Request $request)
-    // {
-    //     $filterProducts = $this->getFilteredProducts($request);
-    //     $categories = Category::get();
-    //     $brands = Brand::get();
-
-    //     return Inertia::render('User/ProductSearch', [
-    //         'products' => ProductResource::collection($filterProducts),
-    //         'query' => $request->input('query'), // Thêm query vào kết quả
-    //         'categories' => $categories,
-    //         'brands' => $brands,
-    //     ]);
-    // }
     public function search(Request $request)
 {
     $query = $request->input('query');
@@ -122,5 +91,18 @@ class ProductListController extends Controller
         'categories' => Category::get(),
         'brands' => Brand::get(),
     ]);
+}
+public function category(Request $request)
+{
+    $products = Product::with('category', 'brand', 'product_images');
+
+    // Lọc theo category (nếu có)
+    if ($categoryId = $request->query('category')) {
+        $products->where('category_id', $categoryId);
+    }
+
+    $filterProducts = $products->filtered()->paginate(12)->withQueryString();
+
+    // ... (phần còn lại của phương thức index)
 }
 }

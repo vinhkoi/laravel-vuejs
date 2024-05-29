@@ -156,7 +156,22 @@
           />
           <small class="p-error" v-if="submitted && !slug">Slug is required.</small>
         </div>
-
+        <div class="card">
+          <el-upload
+            v-model:file-list="productImages"
+            action="/upload-images"
+            method="post"
+            list-type="picture-card"
+            multiple
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :on-change="handleFileChange"
+          >
+            <el-icon class="avatar-uploader-icon">
+              <Plus />
+            </el-icon>
+          </el-upload>
+        </div>
         <template #footer>
           <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
           <Button label="Save" icon="pi pi-check" text @click="AddProduct" />
@@ -191,7 +206,22 @@
             cols="20"
           />
         </div>
-
+        <div class="card">
+          <el-upload
+            v-model:file-list="productImages"
+            action="/upload-images"
+            method="post"
+            list-type="picture-card"
+            multiple
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :on-change="handleFileChange"
+          >
+            <el-icon class="avatar-uploader-icon">
+              <Plus />
+            </el-icon>
+          </el-upload>
+        </div>
         <template #footer>
           <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
           <Button label="Save" icon="pi pi-check" text @click="updateProduct" />
@@ -276,12 +306,25 @@ const deleteProductsDialog = ref(false);
 const category = ref({});
 
 const selectedProducts = ref();
+const productImages = ref([]);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
+const handleFileChange = (file) => {
+  console.log(file);
+  productImages.value.push(file);
+};
 
+const handlePictureCardPreview = (file) => {
+  dialogImageUrl.value = file.url;
+  dialogVisible.value = true;
+};
+
+const handleRemove = (file) => {
+  console.log(file);
+};
 const openNew = () => {
   category.value = {};
   submitted.value = false;
@@ -339,7 +382,9 @@ const AddProduct = async () => {
   formData.append("name", name.value);
   formData.append("slug", slug.value);
   // Append product images to the FormData
-
+  for (const image of productImages.value) {
+    formData.append("image_url[]", image.raw);
+  }
   try {
     await router.post("categories/store", formData, {
       onSuccess: (page) => {
@@ -365,9 +410,11 @@ const updateProduct = async () => {
   formData.append("slug", category.value.slug);
   formData.append("_method", "PUT");
   // Append product images to the FormData
-
+  //   for (const image of productImages.value) {
+  //     formData.append("image_url[]", image.raw);
+  //   }
   try {
-    await router.post("categorys/update/" + category.value.id, formData, {
+    await router.post("categories/update/" + category.value.id, formData, {
       onSuccess: (page) => {
         Swal.fire({
           toast: true,

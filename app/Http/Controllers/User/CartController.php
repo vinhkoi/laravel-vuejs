@@ -134,4 +134,50 @@ class CartController extends Controller
             }
         }
     }
+    public function storeMultiple(Request $request)
+{
+    $products = $request->post('products', []);
+    $user = $request->user();
+
+    foreach ($products as $productData) {
+        $product = Product::find($productData['id']);
+        $quantity = $productData['quantity'] ?? 1;
+
+        if ($user) {
+            $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
+            if ($cartItem) {
+                $cartItem->increment('quantity', $quantity);
+            } else {
+                CartItem::create([
+                    'user_id' => $user->id,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                ]);
+            }
+        } else {
+            $cartItems = Cart::getCookieCartItems();
+            $isProductExists = false;
+            foreach ($cartItems as &$item) {
+                if ($item['product_id'] === $product->id) {
+                    $item['quantity'] += $quantity;
+                    $isProductExists = true;
+                    break;
+                }
+            }
+
+            if (!$isProductExists) {
+                $cartItems[] = [
+                    'user_id' => null,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $product->price,
+                ];
+            }
+            Cart::setCookieCartItems($cartItems);
+        }
+    }
+
+    return back()->with('success', 'Products added to cart successfully');
+}
+
 }

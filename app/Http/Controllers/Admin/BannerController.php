@@ -55,9 +55,10 @@ class BannerController extends Controller
 
                 // Assign the unique name to the brand's brand_image field
                 $banner->image_url = 'image_url/' . $uniqueName;
-                $banner->save();
             }
         }
+        $banner->save();
+
         return redirect()->route('admin.banners.index')->with('success', 'Banner updated successfully.');
     }
     public function destroy($id)

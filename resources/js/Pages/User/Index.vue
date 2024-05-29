@@ -5,12 +5,15 @@ import Hero from "./Layouts/Hero.vue";
 import Products from "../User/Components/Products.vue";
 import NewProducts from "../User/Components/NewProducts.vue";
 import FlashSale from "../User/Components/FlashSale.vue";
+import Category from "../User/Components/Category.vue";
+
 //products list
 defineProps({
   products: Array,
   banner: Array,
   newProducts: Array,
   sales: Array,
+  categories: Array,
 });
 </script>
 <template>
@@ -18,6 +21,14 @@ defineProps({
     <!-- here section  -->
     <Hero :banner="banner"></Hero>
     <!-- end -->
+    <div class="bg-white">
+      <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+        <Category :categories="categories"></Category>
+
+        <!-- end -->
+        /
+      </div>
+    </div>
     <div class="bg-white">
       <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Flash Sale</h2>
