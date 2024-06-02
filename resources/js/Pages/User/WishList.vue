@@ -33,6 +33,7 @@ const remove = (product) => router.delete(route("wishlist.delete", product));
 </script>
 <template>
   <UserLayouts>
+
     <div class="container px-5 py-8 mx-auto">
       <h1 class="text-2xl font-semibold mb-4">
         My Wishlist <i class="pi pi-heart text-red-500"></i>

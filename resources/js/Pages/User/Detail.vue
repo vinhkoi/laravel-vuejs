@@ -47,9 +47,13 @@ const auth = usePage().props.auth;
 const wishlist = computed(() => usePage().props.wishlistt.data); // Lấy dữ liệu wishlist từ props
 
 const isInWishlist = computed(() => {
-  return wishlist.value.data.some(
-    (item) => item.product_id === product.id && item.user_id === auth.user.id
-  );
+  // Kiểm tra nếu wishlist.value.data, product và auth.user đều được định nghĩa
+  if (wishlist.value?.data && product?.id && auth?.user?.id) {
+    return wishlist.value.data.some(
+      (item) => item.product_id === product.id && item.user_id === auth.user.id
+    );
+  }
+  return false;
 });
 const addToWishList = (product) => {
   console.log(product);

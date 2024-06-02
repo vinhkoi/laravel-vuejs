@@ -56,7 +56,7 @@
               dayjs(chirp.created_at).fromNow()
             }}</small>
           </div>
-          <Dropdown v-if="chirp.user_id === auth.user.id">
+          <Dropdown v-if="chirp.user_id === auth.user?.id">
             <template #trigger>
               <button>
                 <svg
