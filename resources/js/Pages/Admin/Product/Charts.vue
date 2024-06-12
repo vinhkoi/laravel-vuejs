@@ -22,8 +22,10 @@ const chartOptions = ref();
 
 const setChartData = () => {
   const documentStyle = getComputedStyle(document.documentElement);
+  const today = new Date();
+  const currentMonth = today.getMonth(); // Chỉ số của tháng hiện tại
   const chartData = {
-    labels: getPast12MonthsLabels(), // Lấy nhãn cho 12 tháng gần đây
+    labels: getPast12MonthsLabels(currentMonth), // Truyền chỉ số của tháng hiện tại cho hàm getPast12MonthsLabels()
     datasets: [
       {
         type: "line",
@@ -49,27 +51,27 @@ const setChartData = () => {
 
   orderss.forEach((order) => {
     const date = new Date(order.created_at);
-    const monthIndex = date.getMonth();
+    const monthIndex = date.getMonth(); // Lấy chỉ số tháng (0-11)
     const totalPrice = parseFloat(order.total_price);
     const quantity = 1;
     if (!isNaN(monthIndex)) {
-      chartData.datasets[0].data[monthIndex] += totalPrice;
-      chartData.datasets[1].data[monthIndex] += quantity;
+      const adjustedMonthIndex = (11 - currentMonth + monthIndex) % 12; // Điều chỉnh chỉ số tháng để lưu trữ ở vị trí đúng trong mảng
+      chartData.datasets[0].data[adjustedMonthIndex] += totalPrice; // Cập nhật dữ liệu cho doanh thu
+      chartData.datasets[1].data[adjustedMonthIndex] += quantity; // Cập nhật dữ liệu cho số lượng đơn hàng
     }
   });
 
   return chartData;
 };
 
-const getPast12MonthsLabels = () => {
+const getPast12MonthsLabels = (currentMonth) => {
   const labels = [];
   const today = new Date();
-  const currentMonth = today.getMonth(); // Chỉ số tháng của tháng hiện tại
   const currentYear = today.getFullYear(); // Năm hiện tại
   for (let i = currentMonth; i > currentMonth - 12; i--) {
     const month = i < 0 ? 12 + i : i; // Xác định tháng trong khoảng 0-11
     const year = i < 0 ? currentYear - 1 : currentYear; // Năm của tháng
-    labels.unshift(`${month}/${year}`); // Thêm nhãn của tháng vào mảng
+    labels.unshift(`${month + 1}/${year}`); // Thêm nhãn của tháng vào mảng
   }
   return labels;
 };

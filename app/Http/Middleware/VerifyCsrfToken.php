@@ -15,5 +15,6 @@ class VerifyCsrfToken extends Middleware
         //
 
         '/dialogflow-webhook',
+        'cart/store/*',
     ];
 }

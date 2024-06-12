@@ -259,6 +259,5 @@ createInertiaApp({
     progress: {
         color: '#4B5563',
     },
-    // baseUrl: 'https://9a1f-2405-4802-1bba-ef60-ad22-6c07-189f-3bbd.ngrok-free.app',
-
+    baseUrl: 'https://poetic-new-rhino.ngrok-free.app',
 });

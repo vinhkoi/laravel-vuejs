@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Log;
 
 class Cart
 {
@@ -37,7 +38,32 @@ class Cart
     {
         Cookie::queue('cart_items', json_encode($cartItems), 60*24*30);
     }
+    public static function getCookieCartItem()
+    {
+        $cookie = request()->cookie('cart_items', '[]');
+        Log::info('Fetching cookie', ['cookie' => $cookie]);
 
+        if ($cookie) {
+            $decoded = json_decode($cookie, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            } else {
+                Log::error('Error decoding cookie', ['cookie' => $cookie, 'error' => json_last_error_msg()]);
+            }
+        }
+        return [];
+    }
+
+    public static function setCookieCartItem(array $cartItems)
+    {
+        $jsonCartItems = json_encode($cartItems);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            Log::info('Setting cookie', ['cartItems' => $cartItems, 'json' => $jsonCartItems]);
+            Cookie::queue('cart_items', $jsonCartItems, 60 * 24 * 30);
+        } else {
+            Log::error('Error encoding cart items to JSON', ['cartItems' => $cartItems, 'error' => json_last_error_msg()]);
+        }
+    }
     public static function saveCookieCartItems()
     {
         $user = auth()->user();

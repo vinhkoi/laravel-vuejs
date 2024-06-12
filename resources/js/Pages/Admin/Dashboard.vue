@@ -263,7 +263,7 @@ const setChartOptions = () => {
         ticks: {
           color: textColorSecondary,
           callback: function (value, index, ticks) {
-            return "$" + value.toLocaleString();
+            return "" + value.toLocaleString();
           },
         },
         grid: {

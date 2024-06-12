@@ -1,5 +1,6 @@
 <script setup>
 import { Link, router } from "@inertiajs/vue3";
+import { ref, computed, reactive } from "vue";
 
 defineProps({
   products: Array,
