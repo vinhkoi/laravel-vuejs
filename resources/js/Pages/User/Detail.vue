@@ -132,7 +132,7 @@ const addToCartt = (product) => {
             <h1 class="text-gray-900 text-3xl title-font font-medium mb-1">
               {{ product.title }}
             </h1>
-            <div class="flex mb-4">
+            <!-- <div class="flex mb-4">
               <span class="flex items-center">
                 <svg
                   v-for="star in 5"
@@ -197,7 +197,7 @@ const addToCartt = (product) => {
                   </svg>
                 </a>
               </span>
-            </div>
+            </div> -->
             <p class="leading-relaxed">{{ product.description }}</p>
             <div class="flex mt-6 items-center pb-5 border-b-2 border-gray-200 mb-5">
               <div class="flex">
@@ -225,10 +225,19 @@ const addToCartt = (product) => {
               </div>
 
               <button
+                v-if="product.inStock"
                 class="flex ml-auto text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded"
                 @click="addToCart(product)"
               >
                 Add to Cart
+              </button>
+
+              <button
+                v-else
+                disabled
+                class="flex ml-auto text-white bg-gray-400 border-0 py-2 px-6 cursor-not-allowed opacity-50 rounded"
+              >
+                Out of Stock
               </button>
               <button
                 :class="{ 'text-red-500': isInWishlist }"
@@ -268,14 +277,16 @@ const addToCartt = (product) => {
           <template #item="slotProps">
             <div class="border-1 surface-border border-round m-2 p-3 d">
               <div class="mb-3">
-                <div class="relative mx-auto image-container">
+                <Link
+                  :href="route('detail.view', { id: slotProps.data.id })"
+                  class="relative mx-auto image-container"
+                >
                   <img
                     v-if="slotProps.data.product_images.length > 0"
                     :src="`/${slotProps.data.product_images[0].image}`"
                     :alt="slotProps.data.imageAlt"
                     class="w-full border-round fixed-size-image"
                   />
-
                   <img
                     v-else
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png"
@@ -289,14 +300,22 @@ const addToCartt = (product) => {
                     class="absolute"
                     style="left: 5px; top: 5px"
                   />
-                </div>
+                </Link>
               </div>
-              <div class="mb-3 font-medium">{{ slotProps.data.title }}</div>
+              <Link :href="route('detail.view', { id: slotProps.data.id })">
+                <div class="mb-3 font-medium">{{ slotProps.data.title }}</div>
+              </Link>
               <div class="flex justify-content-between align-items-center">
                 <div class="mt-0 font-semibold text-xl">${{ slotProps.data.price }}</div>
                 <span>
-                  <Button icon="pi pi-heart" severity="secondary" outlined />
                   <Button
+                    icon="pi pi-heart"
+                    severity="secondary"
+                    outlined
+                    @click="addToWishList(slotProps.data)"
+                  />
+                  <Button
+                    v-if="slotProps.data.inStock"
                     icon="pi pi-shopping-cart"
                     class="ml-2"
                     @click="addToCartt(slotProps.data)"

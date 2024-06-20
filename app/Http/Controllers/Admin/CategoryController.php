@@ -42,6 +42,21 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->name = $request->name;
         $category->slug = $request->slug;
+        if ($request->hasFile('imageUrl')) {
+            $categoryImages = $request->file('imageUrl');
+
+            // Loop qua từng ảnh trong mảng
+            foreach ($categoryImages as $categoryImage) {
+                // Generate a unique name for the image using timestamp and random string
+                $uniqueName = time() . '-' . Str::random(10) . '.' . $categoryImage->getClientOriginalExtension();
+
+                // Store the image in the public folder with the unique name
+                $categoryImage->move('imageUrl', $uniqueName);
+
+                // Assign the unique name to the brand's brand_image field
+                $category->imageUrl = 'imageUrl/' . $uniqueName;
+            }
+        }
         $category->update();
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }

@@ -37,4 +37,6 @@ class PaymentsController extends Controller
         $payment = Payment::findOrFail($id)->delete();
         return redirect()->route('admin.payments.index')->with('success', 'Payment deleted successfully.');
     }
+
+    
 }

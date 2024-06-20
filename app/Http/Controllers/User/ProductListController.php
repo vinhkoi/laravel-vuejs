@@ -36,11 +36,21 @@ class ProductListController extends Controller
 
         return $products->filtered()->paginate(12)->withQueryString();
     }
+
     public function index(Request $request)
     {
         $products = Product::with('category', 'brand', 'product_images');
         if ($categoryId = $request->query('category')) {
             $products->where('category_id', $categoryId);
+        }
+        if ($sort = $request->query('sort')) {
+            if ($sort === 'Newest') {
+                $products->latest();
+            } elseif ($sort === 'Price: Low to High') {
+                $products->orderBy('price', 'asc');
+            } elseif ($sort === 'Price: High to Low') {
+                $products->orderBy('price', 'desc');
+            }
         }
         $filterProducts = $products->filtered()->paginate(12)->withQueryString();
 

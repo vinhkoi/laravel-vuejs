@@ -107,7 +107,9 @@
           headerStyle="width:14%; min-width:10rem;"
           ><template #body="slotProps">
             <span class="p-column-title">Description</span>
-            {{ slotProps.data.description }}
+            <div class="description-container">
+              {{ slotProps.data.description }}
+            </div>
           </template>
         </Column>
         <Column
@@ -142,8 +144,12 @@
           sortable
           headerStyle="width:14%; min-width:10rem;"
           ><template #body="slotProps">
-            <span class="p-column-title">Published</span>
-            {{ slotProps.data.published }}
+            <span
+              class="p-tag p-component p-tag-success"
+              v-if="slotProps.data.published === 1"
+              >Published</span
+            >
+            <span class="p-tag p-component p-tag-danger" v-else>Unpublished</span>
           </template>
         </Column>
         <Column :exportable="false" header="Action" style="min-width: 8rem">
@@ -881,5 +887,11 @@ const deleteProduct = () => {
 
 .p-button.p-button-danger.pi-trash {
   color: white;
+}
+.description-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px; /* Điều chỉnh giá trị này theo ý muốn */
 }
 </style>

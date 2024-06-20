@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, reactive } from "vue";
+import { DeleteFilled, Plus } from "@element-plus/icons-vue";
 
 import UserLayouts from "./Layouts/UserLayouts.vue";
 import { router, usePage } from "@inertiajs/vue3";
@@ -35,6 +36,12 @@ const formFilled = computed(() => {
   );
 });
 
+const isFormOpen = ref(false);
+
+const toggleForm = () => {
+  isFormOpen.value = !isFormOpen.value;
+};
+
 const update = async (product, quantity) => {
   try {
     const response = await router.patch(route("cart.update", product), {
@@ -63,9 +70,54 @@ const update = async (product, quantity) => {
 //remove form cart
 const remove = (product) => router.delete(route("cart.delete", product));
 
-function submit() {
+// function submit() {
+//   if ((formFilled || userAddress) && paymentMethod.value === "stripe") {
+//     // Thực hiện khi thanh toán bằng Stripe
+//     router.visit(route("checkout.store"), {
+//       method: "post",
+//       data: {
+//         carts: usePage().props.cart.data.items,
+//         products: usePage().props.cart.data.products,
+//         total: usePage().props.cart.data.total,
+//         address: form,
+//       },
+//     });
+//   } else if ((formFilled || userAddress) && paymentMethod.value === "cash_on_delivery") {
+//     router.visit(route("checkout.COD"), {
+//       method: "post",
+//       data: {
+//         carts: usePage().props.cart.data.items,
+//         products: usePage().props.cart.data.products,
+//         total: usePage().props.cart.data.total,
+//         address: form,
+//       },
+//     });
+//   } else if ((formFilled.value || userAddress.value) && paymentMethod.value === "vnpay") {
+//     try {
+//       const response = await axios.post(route("checkout.vnpay"), {
+//         carts: usePage().props.cart.data.items,
+//         products: usePage().props.cart.data.products,
+//         total: usePage().props.cart.data.total,
+//         address: form.value,
+//       });
+
+//       if (response.data.code === "00") {
+//         window.location.href = response.data.data;
+//       } else {
+//         // Xử lý lỗi
+//         console.error("Payment initiation failed", response.data.message);
+//       }
+//     } catch (error) {
+//       // Xử lý lỗi
+//       console.error("Error during payment initiation", error);
+//     }
+//   } else {
+//     // Hiển thị cảnh báo nếu không đủ điều kiện
+//     alert("Please fill out the form completely before proceeding.");
+//   }
+// }
+const submit = async () => {
   if ((formFilled || userAddress) && paymentMethod.value === "stripe") {
-    // Thực hiện khi thanh toán bằng Stripe
     router.visit(route("checkout.store"), {
       method: "post",
       data: {
@@ -85,31 +137,64 @@ function submit() {
         address: form,
       },
     });
+  } else if ((formFilled || userAddress) && paymentMethod.value === "vnpay") {
+    try {
+      const response = await axios.post(route("checkout.vnpay"), {
+        carts: usePage().props.cart.data.items,
+        products: usePage().props.cart.data.products,
+        total: usePage().props.cart.data.total,
+        address: form,
+      });
+
+      if (response.data.code === "00") {
+        window.location.href = response.data.data;
+      } else {
+        // Xử lý lỗi
+        console.error("Payment initiation failed", response.data.message);
+      }
+    } catch (error) {
+      // Xử lý lỗi
+      console.error("Error during payment initiation", error);
+    }
   } else {
     // Hiển thị cảnh báo nếu không đủ điều kiện
     alert("Please fill out the form completely before proceeding.");
   }
-}
+};
+const submitPayment = async () => {
+  try {
+    const response = await axios.get(route("vnpay.index"));
+    if (response.data.code === "00") {
+      window.location.href = response.data.data;
+    } else {
+      // Xử lý lỗi
+    }
+  } catch (error) {
+    // Xử lý lỗi
+  }
+};
 </script>
 <template>
   <UserLayouts>
-    <section class="text-gray-600 body-font relative">
+    <section class="text-gray-600 body-font pb-10">
       <div class="container px-5 py-24 mx-auto flex sm:flex-nowrap flex-wrap">
         <div class="lg:w-2/3 md:w-1/2 rounded-lg sm:mr-10 p-10">
           <!-- lis tof cart -->
-
-          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <h1 class="text-xl font-semibold mb-4 dark:text-white">Your Cart</h1>
+          <table
+            class="w-full text-sm text-left overflow-y-scroll max-h-[800px] text-gray-500 dark:text-gray-400 rounded-lg"
+          >
             <thead
-              class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+              class="text-xs text-white uppercase bg-gray-800 dark:bg-gray-700 dark:text-gray-400"
             >
               <tr>
-                <th scope="col" class="px-6 py-3">
+                <th scope="col" class="px-16 py-3 rounded-tl-lg">
                   <span class="sr-only">Image</span>
                 </th>
                 <th scope="col" class="px-6 py-3">Product</th>
                 <th scope="col" class="px-6 py-3">Qty</th>
                 <th scope="col" class="px-6 py-3">Price</th>
-                <th scope="col" class="px-6 py-3">Action</th>
+                <th scope="col" class="px-6 py-3 rounded-tr-lg">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -179,7 +264,7 @@ function submit() {
                       @click.prevent="
                         update(product, carts[itemId(product.id)].quantity + 1)
                       "
-                      class="inline-flex items-center justify-center h-6 w-6 p-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-full focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                      class="inline-flex items-center justify-center h-6 w-6 p-1 ms-3 text-sm font-mediu cursor-pointer bg-green-500 text-white hover:bg-green-600 border border-gray-300 rounded-full focus:outline-none focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
                       type="button"
                     >
                       <span class="sr-only">Quantity button</span>
@@ -217,8 +302,11 @@ function submit() {
                 <td class="px-6 py-4">
                   <a
                     @click="remove(product)"
-                    class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                    >Remove</a
+                    class="font-medium cursor-pointer text-red-600 dark:text-red-500 hover:underline"
+                    ><el-icon class="mt-2">
+                      <DeleteFilled />
+                    </el-icon>
+                    <span class="ml-2">Delete</span></a
                   >
                 </td>
               </tr>
@@ -228,9 +316,9 @@ function submit() {
           <!-- end -->
         </div>
         <div
-          class="lg:w-1/3 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0"
+          class="lg:w-1/3 md:w-1/2 bg-white px-6 flex flex-col md:ml-auto w-full h-fit md:py-8 mt-8 md:mt-0 dark:bg-gray-800 rounded-lg abc"
         >
-          <h2 class="text-gray-900 text-lg mb-1 font-medium title-font">Summary</h2>
+          <h2 class="text-gray-900 text-2xl mb-1 font-bold dark:text-white">Summary</h2>
           <p class="leading-relaxed mb-5 text-gray-600">Total : $ {{ total }}</p>
 
           <div v-if="userAddress">
@@ -250,107 +338,139 @@ function submit() {
             </p>
           </div>
 
-          <form @submit.prevent="submit">
-            <div class="relative mb-4">
-              <label for="name" class="leading-7 text-sm text-gray-600">Address 1</label>
-              <input
-                type="text"
-                id="name"
-                name="address1"
-                v-model="form.address1"
-                class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div class="relative mb-4">
-              <label for="email" class="leading-7 text-sm text-gray-600">City</label>
-              <input
-                type="text"
-                id="email"
-                name="city"
-                v-model="form.city"
-                class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div class="relative mb-4">
-              <label for="email" class="leading-7 text-sm text-gray-600">State</label>
-              <input
-                type="text"
-                id="email"
-                name="state"
-                v-model="form.state"
-                class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div class="relative mb-4">
-              <label for="email" class="leading-7 text-sm text-gray-600">Zipcode</label>
-              <input
-                type="text"
-                id="email"
-                name="zipcode"
-                v-model="form.zipcode"
-                class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div class="relative mb-4">
-              <label for="email" class="leading-7 text-sm text-gray-600"
-                >Country Code</label
-              >
-              <input
-                type="text"
-                id="email"
-                name="countrycode"
-                v-model="form.country_code"
-                class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div class="relative mb-4">
-              <label for="email" class="leading-7 text-sm text-gray-600"
-                >Address type</label
-              >
-              <input
-                type="text"
-                id="email"
-                name="type"
-                v-model="form.type"
-                class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div class="btn">
-              <input type="hidden" name="payment_method" v-model="paymentMethod" />
-              <button
-                v-if="formFilled || userAddress"
-                @click="paymentMethod = 'stripe'"
-                type="submit"
-                class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-              >
-                Stripe
-              </button>
-              <input type="hidden" name="payment_method" v-model="paymentMethod" />
-              <button
-                v-if="formFilled || userAddress"
-                @click="paymentMethod = 'cash_on_delivery'"
-                type="submit"
-                class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-              >
-                Cash on delivery
-              </button>
+          <div>
+            <button
+              @click="toggleForm"
+              class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+            >
+              {{ isFormOpen ? "Hide Form" : "Show Form" }}
+            </button>
 
-              <button
-                v-else
-                @click="addButtonClicked = true"
-                class="text-white bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg"
-              >
-                Add Address to continue
-              </button>
-            </div>
+            <form v-if="isFormOpen" @submit.prevent="submit">
+              <div class="relative mb-4">
+                <label for="address1" class="leading-7 text-sm text-gray-600"
+                  >Address 1</label
+                >
+                <input
+                  type="text"
+                  id="address1"
+                  name="address1"
+                  v-model="form.address1"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                />
+              </div>
+              <div class="relative mb-4">
+                <label for="city" class="leading-7 text-sm text-gray-600">City</label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  v-model="form.city"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                />
+              </div>
+              <div class="relative mb-4">
+                <label for="state" class="leading-7 text-sm text-gray-600">State</label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  v-model="form.state"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                />
+              </div>
+              <div class="relative mb-4">
+                <label for="zipcode" class="leading-7 text-sm text-gray-600"
+                  >Zipcode</label
+                >
+                <input
+                  type="text"
+                  id="zipcode"
+                  name="zipcode"
+                  v-model="form.zipcode"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                />
+              </div>
+              <div class="relative mb-4">
+                <label for="countrycode" class="leading-7 text-sm text-gray-600"
+                  >Country Code</label
+                >
+                <input
+                  type="text"
+                  id="countrycode"
+                  name="countrycode"
+                  v-model="form.country_code"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                />
+              </div>
+              <div class="relative mb-4">
+                <label for="type" class="leading-7 text-sm text-gray-600"
+                  >Address type</label
+                >
+                <input
+                  type="text"
+                  id="type"
+                  name="type"
+                  v-model="form.type"
+                  class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                />
+              </div>
+              <div class="btn">
+                <input type="hidden" name="payment_method" v-model="paymentMethod" />
+                <button
+                  v-if="formFilled || userAddress"
+                  @click="paymentMethod = 'stripe'"
+                  type="submit"
+                  class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                >
+                  Stripe
+                </button>
+                <input type="hidden" name="payment_method" v-model="paymentMethod" />
+                <button
+                  v-if="formFilled || userAddress"
+                  @click="paymentMethod = 'cash_on_delivery'"
+                  type="submit"
+                  class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                >
+                  Cash on delivery
+                </button>
+                <input type="hidden" name="payment_method" v-model="paymentMethod" />
+                <button
+                  v-if="formFilled || userAddress"
+                  @click="paymentMethod = 'vnpay'"
+                  type="submit"
+                  class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                >
+                  VNpay
+                </button>
+                <button
+                  v-else
+                  @click="addButtonClicked = true"
+                  class="text-white bg-gray-500 border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded text-lg"
+                >
+                  Add Address to continue
+                </button>
+              </div>
 
-            <div v-if="!formFilled && !userAddress && addButtonClicked">
-              <p class="text-red-500 mb-2">
-                Please fill out the form completely before proceeding.
-              </p>
-            </div>
+              <div v-if="!formFilled && !userAddress && addButtonClicked">
+                <p class="text-red-500 mb-2">
+                  Please fill out the form completely before proceeding.
+                </p>
+              </div>
+            </form>
+          </div>
+          <form
+            v-bind:action="route('vnpay.index')"
+            method="POST"
+            @submit.prevent="submitPayment"
+          >
+            <button
+              type="submit"
+              class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+            >
+              Pay with VNPAY
+            </button>
           </form>
-
           <p class="text-xs text-gray-500 mt-3">Continue Shopping</p>
         </div>
       </div>
@@ -362,7 +482,12 @@ function submit() {
   display: flex;
   justify-content: space-around;
 }
+
 .a {
   text-decoration: line-through;
+}
+
+.abc {
+  background-color: #f9fafb;
 }
 </style>

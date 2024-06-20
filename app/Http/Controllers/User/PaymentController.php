@@ -4,51 +4,24 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
-    //
-    public function index(Request $request){
-    $user = $request->user();
-        $carts = $request->carts;
-        $products = $request->products;
+    public function vnpayPayment(Request $request)
+{
 
-        $mergedData = [];
 
-        foreach ($carts as $cartItem) {
-            foreach ($products as $product) {
-                if ($cartItem['product_id'] == $product['id']) {
-                    $mergedData[] = array_merge($cartItem, ['title' => $product['title'], 'price' => $product['price']]);
-                }
-            }
-        }
-        $lineItems = [];
-        foreach ($mergedData as $item) {
-            $lineItems[] = [
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => $item['title'],
-                    ],
-                    'unit_amount' => (int)($item['price'] * 100),
-                ],
-                'quantity' => $item['quantity'],
-            ];
-        }
-        $totalAmount = 0;
-foreach ($lineItems as $item) {
-    $totalAmount += $item['price_data']['unit_amount'];
-}
     $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    $vnp_Returnurl = "http://127.0.0.1:8000/";
-    $vnp_TmnCode = "UTGIB2PJ";
+    $vnp_Returnurl =  route('checkout.vnpay.return');;
+    $vnp_TmnCode = "UTGIB2PJ";//Mã website tại VNPAY
     $vnp_HashSecret = "POSYXTJLWTZQSLFYGNTGWHVAEKCWHPAX"; //Chuỗi bí mật
 
-    $vnp_TxnRef = rand(1,10000); //Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này sang VNPAY
-    $vnp_OrderInfo = "Thanh toan GD:" . $vnp_TxnRef;
-    $vnp_OrderType = "other";
-    $vnp_Amount = $totalAmount;
-    $vnp_Locale = 'VN';
+    $vnp_TxnRef = '100001'; //Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã nàysang VNPAY
+    $vnp_OrderInfo = "thanh toan hoa don";
+    $vnp_OrderType ="abc";
+    $vnp_Amount = 10000 * 100;
+    $vnp_Locale = "vn";
     $vnp_BankCode = 'NCB';
     $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
 
@@ -65,6 +38,7 @@ foreach ($lineItems as $item) {
         "vnp_OrderType" => $vnp_OrderType,
         "vnp_ReturnUrl" => $vnp_Returnurl,
         "vnp_TxnRef" => $vnp_TxnRef,
+
     );
 
     if (isset($vnp_BankCode) && $vnp_BankCode != "") {
@@ -72,7 +46,7 @@ foreach ($lineItems as $item) {
     }
 
 
-    //var_dump($inputData);
+    // var_dump($inputData);
     ksort($inputData);
     $query = "";
     $i = 0;
@@ -96,14 +70,17 @@ foreach ($lineItems as $item) {
         , 'message' => 'success'
         , 'data' => $vnp_Url);
         if (isset($_POST['redirect'])) {
-            header('Location: ' . $vnp_Url);
-            die();
+
+            return response()->json(['vnp_Url' => $vnp_Url]);
+            // dd($vnp_Url);
+
         } else {
             echo json_encode($returnData);
+            // dd($vnp_Url);
+
         }
         // vui lòng tham khảo thêm tại code demo
 
-    }
-
+}
 }
 

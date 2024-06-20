@@ -87,6 +87,16 @@
               {{ slotProps.data.name }}
             </template>
           </Column>
+          <Column header="Image" sortable headerStyle="width:14%; min-width:10rem;"
+            ><template #body="slotProps">
+              <img
+                :src="`/${slotProps.data.imageUrl}`"
+                :alt="slotProps.data.imageUrl"
+                class="border-round"
+                style="width: 64px"
+              />
+            </template>
+          </Column>
           <Column
             field="slug"
             header="Slug"
@@ -383,7 +393,7 @@ const AddProduct = async () => {
   formData.append("slug", slug.value);
   // Append product images to the FormData
   for (const image of productImages.value) {
-    formData.append("image_url[]", image.raw);
+    formData.append("imageUrl[]", image.raw);
   }
   try {
     await router.post("categories/store", formData, {
@@ -410,9 +420,9 @@ const updateProduct = async () => {
   formData.append("slug", category.value.slug);
   formData.append("_method", "PUT");
   // Append product images to the FormData
-  //   for (const image of productImages.value) {
-  //     formData.append("image_url[]", image.raw);
-  //   }
+  for (const image of productImages.value) {
+    formData.append("imageUrl[]", image.raw);
+  }
   try {
     await router.post("categories/update/" + category.value.id, formData, {
       onSuccess: (page) => {

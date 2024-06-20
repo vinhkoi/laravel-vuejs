@@ -131,14 +131,14 @@ const productss = usePage().props.products;
       </div>
     </div>
   </div>
-  <div class="card">
+  <!-- <div class="card">
     <Paginator
       v-model:first="first"
       :rows="12"
       :totalRecords="productss.meta.total"
       @page="onPageChange"
     ></Paginator>
-  </div>
+  </div> -->
 </template>
 <style scoped>
 .product-border {

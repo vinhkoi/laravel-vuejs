@@ -27,8 +27,6 @@ import Products from "../User/Components/Products.vue";
 import SecondaryButtonVue from "@/Components/SecondaryButton.vue";
 import { router, useForm } from "@inertiajs/vue3";
 const sortOptions = [
-  { name: "Most Popular", href: "#", current: true },
-  { name: "Best Rating", href: "#", current: false },
   { name: "Newest", href: "#", current: false },
   { name: "Price: Low to High", href: "#", current: false },
   { name: "Price: High to Low", href: "#", current: false },
@@ -54,6 +52,7 @@ const priceFilter = () => {
 };
 
 const mobileFiltersOpen = ref(false);
+const currentSort = ref("Newest");
 
 const props = defineProps({
   products: Array,
@@ -71,6 +70,9 @@ watch(selectedBrands, () => {
 watch(selectedCategories, () => {
   updateFilteredProducts();
 });
+watch(currentSort, () => {
+  updateFilteredProducts();
+});
 
 function updateFilteredProducts() {
   router.get(
@@ -78,6 +80,7 @@ function updateFilteredProducts() {
     {
       brands: selectedBrands.value,
       categories: selectedCategories.value,
+      sort: currentSort.value,
     },
     {
       preserveState: true,
@@ -234,7 +237,8 @@ function updateFilteredProducts() {
                         v-slot="{ active }"
                       >
                         <a
-                          :href="option.href"
+                          href="#"
+                          @click="currentSort = option.name"
                           :class="[
                             option.current
                               ? 'font-medium text-gray-900'
@@ -250,13 +254,6 @@ function updateFilteredProducts() {
                 </transition>
               </Menu>
 
-              <button
-                type="button"
-                class="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7"
-              >
-                <span class="sr-only">View grid</span>
-                <Squares2X2Icon class="h-5 w-5" aria-hidden="true" />
-              </button>
               <button
                 type="button"
                 class="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
@@ -404,6 +401,9 @@ function updateFilteredProducts() {
               <!-- Product grid -->
               <div class="lg:col-span-3">
                 <!-- Your content -->
+                <div v-if="products.data.length === 0" class="text-center mt-4">
+                  <p class="text-gray-600">No results found.</p>
+                </div>
                 <Products :products="products.data"></Products>
               </div>
             </div>
