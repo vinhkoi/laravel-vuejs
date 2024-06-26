@@ -86,6 +86,17 @@
           {{ slotProps.data.user.email }}
         </template>
       </Column>
+      <Column :exportable="false" header="Action" style="min-width: 8rem">
+        <template #body="slotProps">
+          <Button
+            icon="pi pi-search"
+            outlined
+            rounded
+            class="mr-2 pencill"
+            @click="findInvoice(slotProps.data)"
+          />
+        </template>
+      </Column>
 
       <template #expansion="slotProps">
         <div class="p-3" v-if="slotProps.data">
@@ -130,6 +141,7 @@ defineProps({
 });
 const auth = usePage().props.auth;
 const orderss = usePage().props.orders;
+const orde = ref(usePage().props.orders);
 const expandedRows = ref({});
 const toast = useToast();
 console.log(orderss);
@@ -160,21 +172,24 @@ const onRowCollapse = (event) => {
 const collapseAll = () => {
   expandedRows.value = null;
 };
-const deleteProduct = (orderId) => {
+const findInvoice = async (order) => {
   try {
-    router.delete("orders/destroy/" + orderId, {
-      onSuccess: (page) => {
-        Swal.fire({
-          toast: true,
-          icon: "success",
-          position: "top-end",
-          showConfirmButton: false,
-          title: page.props.flash.success,
-        });
-      },
+    router.get(`/order-summary/${order.id}`);
+    Swal.fire({
+      toast: true,
+      icon: "success",
+      position: "top-end",
+      showConfirmButton: false,
+      title: "Navigating to Order Summary...",
+      timer: 1500,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Something went wrong!",
+    });
   }
 };
 </script>

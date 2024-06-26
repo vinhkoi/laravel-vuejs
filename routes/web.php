@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProductSaleController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\DialogflowController;
+use App\Http\Controllers\OrderSummaryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
@@ -34,6 +35,7 @@ Route::get('/about', [UserController::class, 'about'])->name('about');
 Route::get('/contact', [UserController::class, 'contact'])->name('contact');
 Route::get('/builder', [UserController::class, 'builder'])->name('builder');
 Route::post('/dialogflow-webhook', [DialogflowController::class, 'handleWebhook']);
+Route::get('/order-summary/{orderId}', [OrderSummaryController::class, 'show'])->name('order.summary');
 
 //user route
 Route::prefix('user')->controller(DashboardController::class)->group(function () {

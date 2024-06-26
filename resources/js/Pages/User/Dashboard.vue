@@ -20,7 +20,7 @@ onMounted(() => {
     <Card class="shadow-md">
       <template #title>
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold">Danh sách đơn hàng</h2>
+          <h2 class="text-lg font-semibold">Your Order</h2>
         </div>
       </template>
       <template #content>
