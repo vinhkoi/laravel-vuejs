@@ -50,14 +50,16 @@ const setChartData = () => {
   };
 
   orderss.forEach((order) => {
-    const date = new Date(order.created_at);
-    const monthIndex = date.getMonth(); // Lấy chỉ số tháng (0-11)
-    const totalPrice = parseFloat(order.total_price);
-    const quantity = 1;
-    if (!isNaN(monthIndex)) {
-      const adjustedMonthIndex = (11 - currentMonth + monthIndex) % 12; // Điều chỉnh chỉ số tháng để lưu trữ ở vị trí đúng trong mảng
-      chartData.datasets[0].data[adjustedMonthIndex] += totalPrice; // Cập nhật dữ liệu cho doanh thu
-      chartData.datasets[1].data[adjustedMonthIndex] += quantity; // Cập nhật dữ liệu cho số lượng đơn hàng
+    if (order.status === "paid") {
+      const date = new Date(order.created_at);
+      const monthIndex = date.getMonth();
+      const totalPrice = parseFloat(order.total_price);
+      const quantity = 1;
+      if (!isNaN(monthIndex)) {
+        const adjustedMonthIndex = (11 - currentMonth + monthIndex) % 12;
+        chartData.datasets[0].data[adjustedMonthIndex] += totalPrice;
+        chartData.datasets[1].data[adjustedMonthIndex] += quantity;
+      }
     }
   });
 

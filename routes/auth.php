@@ -8,7 +8,9 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\TwoFactorController as AuthTwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -21,6 +23,8 @@ Route::middleware('guest')->group(function () {
                 ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('/verify-2fa', [AuthTwoFactorController::class, 'show'])->name('verify-2fa.show');
+    Route::post('/verify-2fa', [AuthTwoFactorController::class, 'verify'])->name('verify-2fa.verify');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('password.request');

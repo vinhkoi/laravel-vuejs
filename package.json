@@ -31,6 +31,7 @@
         "primeicons": "^7.0.0",
         "primevue": "^3.51.0",
         "sweetalert2": "^11.7.27",
-        "vue-sweetalert2": "^5.0.5"
+        "vue-sweetalert2": "^5.0.5",
+        "vuejs-paginate-next": "^1.0.2"
     }
 }

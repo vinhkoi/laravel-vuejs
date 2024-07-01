@@ -190,13 +190,15 @@ const setChartData = () => {
     ],
   };
   orders.forEach((order) => {
-    const date = new Date(order.created_at);
-    const dayIndex = getDayIndex(date);
-    const totalPrice = parseFloat(order.total_price);
-    const quantity = 1;
-    if (!isNaN(dayIndex)) {
-      chartData.datasets[0].data[dayIndex] += totalPrice;
-      chartData.datasets[1].data[dayIndex] += quantity;
+    if (order.status === "paid") {
+      const date = new Date(order.created_at);
+      const dayIndex = getDayIndex(date);
+      const totalPrice = parseFloat(order.total_price);
+      const quantity = 1;
+      if (!isNaN(dayIndex)) {
+        chartData.datasets[0].data[dayIndex] += totalPrice;
+        chartData.datasets[1].data[dayIndex] += quantity;
+      }
     }
   });
 

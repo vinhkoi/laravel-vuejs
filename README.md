@@ -1,8 +1,8 @@
-#### E-commerce application built with Laravel, Vue.js, Tailwind.css and Inertia.js with Stripe Payment maybe VNPAY Payment if i can
+#### E-commerce application built with Laravel, Vue.js, Tailwind.css and Inertia.js with Stripe Payment
 
 #### installation
 
-Make sure you have environment setup properly. You will need MySQL, PHP8.2, Node.js and composer.
+Make sure you have environment setup properly. You will need MySQL, PHP8.1, Node.js and composer.
 
 #### Install Laravel Website + API
 

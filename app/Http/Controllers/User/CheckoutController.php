@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Support\Facades\Redirect;
@@ -202,7 +203,27 @@ class CheckoutController extends Controller
             ];
             Payment::create($paymentData);
         }
-        // Nếu là Cash on Delivery, chuyển hướng đến trang dashboard
+        $webhookUrl = 'https://hook.eu2.make.com/ciufk6mbqfxx25pgzioct6mp94pp360u'; // Thay bằng URL webhook bạn đã sao chép từ Make
+        $data = [
+            'order_id' => $order->id,
+            'user_email' => $user->email,
+            'total_price' => $order->total_price,
+            'estimated_delivery_time' => $order->estimated_delivery_time,
+            'shipping_fee' => $order->shipping_fee,
+            'email' => $user->email, // Adding email to the main data array
+            'name' => $user->name // Adding name to the main data array
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post($webhookUrl, [
+            'json' => $data
+        ]);
+
+        Log::info('Webhook response:', [
+            'status' => $response->getStatusCode(),
+            'body' => $response->getBody()->getContents(),
+        ]);
+
         return redirect()->route('dashboard');
     }
     public function success(Request $request)
@@ -239,7 +260,26 @@ class CheckoutController extends Controller
                 array_splice($cartItems, 0, count($cartItems));
                 Cart::setCookieCartItems($cartItems);
             }
+            $webhookUrl = 'https://hook.eu2.make.com/ciufk6mbqfxx25pgzioct6mp94pp360u'; // Thay bằng URL webhook bạn đã sao chép từ Make
+            $data = [
+                'order_id' => $order->id,
+                'user_email' => $user->email,
+                'total_price' => $order->total_price,
+                'estimated_delivery_time' => $order->estimated_delivery_time,
+                'shipping_fee' => $order->shipping_fee,
+                'email' => $user->email, // Adding email to the main data array
+                'name' => $user->name // Adding name to the main data array
+            ];
 
+            $client = new \GuzzleHttp\Client();
+            $response = $client->post($webhookUrl, [
+                'json' => $data
+            ]);
+
+            Log::info('Webhook response:', [
+                'status' => $response->getStatusCode(),
+                'body' => $response->getBody()->getContents(),
+            ]);
             return redirect()->route('order.summary', ['orderId' => $order->id])->with('message', 'Payment Successful');
         } catch (\Exception $e) {
             throw new NotFoundHttpException();
@@ -507,7 +547,26 @@ class CheckoutController extends Controller
                     // Cập nhật trạng thái thanh toán
                     Payment::where('order_id', $order->id)->update(['status' => 'paid']);
 
+                    $webhookUrl = 'https://hook.eu2.make.com/ciufk6mbqfxx25pgzioct6mp94pp360u'; // Thay bằng URL webhook bạn đã sao chép từ Make
+                    $data = [
+                        'order_id' => $order->id,
+                        'user_email' => $user->email,
+                        'total_price' => $order->total_price,
+                        'estimated_delivery_time' => $order->estimated_delivery_time,
+                        'shipping_fee' => $order->shipping_fee,
+                        'email' => $user->email, // Adding email to the main data array
+                        'name' => $user->name // Adding name to the main data array
+                    ];
 
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->post($webhookUrl, [
+                        'json' => $data
+                    ]);
+
+                    Log::info('Webhook response:', [
+                        'status' => $response->getStatusCode(),
+                        'body' => $response->getBody()->getContents(),
+                    ]);
                     return redirect()->route('order.summary', ['orderId' => $order->id])->with('message', 'Payment Successful');
                 }
             } else {
