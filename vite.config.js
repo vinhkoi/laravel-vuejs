@@ -22,5 +22,8 @@ export default defineConfig({
     ],
     build: {
         outDir: 'dist' // Ensure the output directory is set to 'dist'
-    }
+    },
+    server: {
+        port: process.env.PORT || 3000, // Sử dụng cổng từ biến môi trường hoặc cổng 3000
+    },
 });
