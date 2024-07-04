@@ -4,8 +4,8 @@ import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-// import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
-import { ZiggyVue } from './vue.m';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
+
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import '../assets/styles.scss';
