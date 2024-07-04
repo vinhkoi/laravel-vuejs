@@ -25,5 +25,6 @@ export default defineConfig({
     },
     server: {
         port: process.env.PORT || 3000, // Sử dụng cổng từ biến môi trường hoặc cổng 3000
+        strictPort: true,
     },
 });
