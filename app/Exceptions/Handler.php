@@ -2,7 +2,10 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Inertia\Inertia;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -26,5 +29,15 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+    public function render($request, Throwable $exception)
+    {
+        // Kiểm tra các ngoại lệ cần xử lý
+        if ($exception instanceof QueryException || $exception instanceof NotFoundHttpException) {
+            return Inertia::render('NotFound', [], 404); // Sử dụng Inertia để trả về trang Vue.js
+        }
+
+        // Đối với các ngoại lệ khác, sử dụng render mặc định
+        return parent::render($request, $exception);
     }
 }

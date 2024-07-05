@@ -151,5 +151,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::put('/sale/update/{id}', [ProductSaleController::class, 'update'])->name('admin.sale.update');
     Route::delete('/sale/destroy/{id}', [ProductSaleController::class, 'destroy'])->name('admin.sale.destroy');
 });
-
+Route::fallback(function () {
+    return Inertia::render('NotFound', [], 404);
+});
 require __DIR__ . '/auth.php';
