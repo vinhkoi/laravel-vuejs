@@ -21,7 +21,8 @@ export default defineConfig({
 
     ],
     build: {
-        outDir: 'dist' // Ensure the output directory is set to 'dist'
+        manifest: true, // Kích hoạt tạo manifest
+        outDir: 'public/build', // Đảm bảo thư mục xuất dữ liệu là 'public/build'
     },
     server: {
         port: process.env.PORT || 3000, // Sử dụng cổng từ biến môi trường hoặc cổng 3000
