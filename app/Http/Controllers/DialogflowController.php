@@ -32,11 +32,12 @@ class DialogflowController extends Controller
                 return $this->handlePlaceOrder($request);
             case 'product.sale':
                 return $this->handlePromotions($request);
-
             case 'product.wishlist':
                 return $this->handleAddToWishlist($request);
-            default:
-                return response()->json(['fulfillmentText' => 'How can I assist you today?']);
+            case 'delivery.options':
+                return $this->handleDelivery($request);
+            // default:
+            //     return response()->json(['fulfillmentText' => 'Hôm nay tôi có thể giúp gì cho bạn?']);
         }
     }
 
@@ -49,17 +50,60 @@ class DialogflowController extends Controller
             $product = Product::where('title', 'like', '%' . $productName . '%')->first();
 
             if ($product) {
+                $responseText = "Sản phẩm: " . $product->title . "\n";
+                $responseText .= "Giá: " . $product->price . "\n";
+                $responseText .= "Mô tả: " . $product->description . "\n";
+                $responseText .= "Tình trạng kho: " . ($product->inStock == 1 ? 'Còn hàng' : 'Hết hàng') . "\n";
+                // Nếu có thông tin khuyến mãi
+                $promotion = ProductFlashSale::where('product_id', $product->id)
+                    ->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now())
+                    ->first();
+
+                if ($promotion) {
+                    $responseText .= "Khuyến mãi: Đang có giảm giá " . $promotion->discount_rate . "% cho sản phẩm " . $product->title . ". Giá sau khi giảm là " . $promotion->discounted_price . ".\n";
+                } else {
+                    $responseText .= "Khuyến mãi: Hiện không có giảm giá cho " . $product->title . " ở thời điểm hiện tại.\n";
+                }
+
                 $response = [
-                    'fulfillmentText' => 'The price of ' . $product->title . ' is ' . $product->price . '.',
+                    'fulfillmentMessages' => [
+                        [
+                            'text' => [
+                                'text' => [
+                                    $responseText
+                                ]
+                            ]
+                        ],
+                        [
+                            'payload' => [
+                                'richContent' => [
+                                    [
+                                        [
+                                            'type' => 'info',
+                                            'title' => 'Sản phẩm: ' . $product->title,
+                                            'subtitle' => 'Giá: ' . $product->price,
+                                            'image' => [
+                                                'src' => [
+                                                    'rawUrl' => 'https://poetic-new-rhino.ngrok-free.app/product_images/1715091018-0zfwYKbtkh.webp',
+                                                ]
+                                            ],
+                                            'actionLink' => 'https://poetic-new-rhino.ngrok-free.app/detail/view/' . $product->id,
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                 ];
             } else {
                 $response = [
-                    'fulfillmentText' => 'Sorry, I could not find any product named ' . $productName . '.',
+                    'fulfillmentText' => 'Xin lỗi tôi không tìm thấy tên sản phẩm ' . $productName . '.',
                 ];
             }
         } else {
             $response = [
-                'fulfillmentText' => 'Please specify a product name.',
+                'fulfillmentText' => 'Vui lòng chỉ định tên sản phẩm.',
             ];
         }
 
@@ -77,21 +121,21 @@ class DialogflowController extends Controller
             if ($product) {
                 if ($product->inStock > 0) {
                     $response = [
-                        'fulfillmentText' => $product->title . ' is in stock. We have ' . $product->quantity . ' units available.',
+                        'fulfillmentText' => $product->title . ' còn hàng,chúng tôi có ' . $product->quantity . '  sản phẩm còn lại.',
                     ];
                 } else {
                     $response = [
-                        'fulfillmentText' => 'Sorry, ' . $product->title . ' is out of stock.',
+                        'fulfillmentText' => 'Xin lỗi mặt hàng ' . $product->title . ' đã hết hàng.',
                     ];
                 }
             } else {
                 $response = [
-                    'fulfillmentText' => 'Sorry, I could not find any product named ' . $productName . '.',
+                    'fulfillmentText' => 'Xin lỗi tôi không tìm thấy tên sản phẩm ' . $productName . '.',
                 ];
             }
         } else {
             $response = [
-                'fulfillmentText' => 'Please specify a product name.',
+                'fulfillmentText' => 'Vui lòng chỉ định tên sản phẩm',
             ];
         }
 
@@ -101,31 +145,32 @@ class DialogflowController extends Controller
     private function handleRecommendProducts(Request $request)
     {
         // Extract the product name from the request
-        $productName = $request->input('queryResult.parameters.product')[0] ?? null;
+        $productName = $request->input('queryResult.parameters.product1')[0] ?? null;
 
         if ($productName) {
             $product = Product::where('title', 'like', '%' . $productName . '%')->first();
 
             if ($product) {
-                $relatedProducts = Product::where('title', 'like', '%' . $productName . '%')
-                    ->orWhere('category_id', $product->category_id)
+                $relatedProducts = Product::where('category_id', $product->category_id)
                     ->where('id', '!=', $product->id)
                     ->take(3)
                     ->get();
 
-                $relatedText = $relatedProducts->isEmpty() ? 'No related products found.' : 'You may also like: ' . $relatedProducts->implode('title', ', ') . '.';
+                $relatedText = $relatedProducts->isEmpty()
+                    ? 'Không tìm thấy sản phẩm tương tự.'
+                    : 'Bạn cũng có thể thích: ' . $relatedProducts->pluck('title')->implode(', ') . '.';
 
                 $response = [
-                    'fulfillmentText' => 'The price of ' . $product->title . ' is ' . $product->price . '. ' . $relatedText,
+                    'fulfillmentText' => 'Giá của ' . $product->title . ' là ' . $product->price . '. ' . $relatedText,
                 ];
             } else {
                 $response = [
-                    'fulfillmentText' => 'Sorry, I could not find any product named ' . $productName . '.',
+                    'fulfillmentText' => 'Xin lỗi, tôi không tìm thấy sản phẩm nào tên là ' . $productName . '.',
                 ];
             }
         } else {
             $response = [
-                'fulfillmentText' => 'Please specify a product name.',
+                'fulfillmentText' => 'Vui lòng chỉ định tên sản phẩm.',
             ];
         }
 
@@ -221,19 +266,19 @@ class DialogflowController extends Controller
     private function handlePromotions(Request $request)
     {
         // Extract the product name from the request
-        $productName = $request->input('queryResult.parameters.product')[0] ?? null;
+        $productName = $request->input('queryResult.parameters.product2')[0] ?? null;
 
         if ($productName) {
             $product = Product::where('title', 'like', '%' . $productName . '%')->first();
 
             if ($product) {
-                // Check for promotions
+                // Check for promotions of the specified product
                 $promotion = ProductFlashSale::where('product_id', $product->id)
                     ->where('start_date', '<=', now())
                     ->where('end_date', '>=', now())
                     ->first();
 
-                $promotionText = $promotion ? 'There is a discount of ' . $promotion->discount_rate . '% on ' . $product->title .'. The price after discount is $' . $promotion->discounted_price . '.' : 'No discounts available for ' . $product->title . ' at the moment.';
+                $promotionText = $promotion ? 'Đang có giảm giá ' . $promotion->discount_rate . '% cho sản phẩm ' . $product->title . '. Giá sau khi giảm là ' . $promotion->discounted_price . '.' : 'Hiện không có giảm giá cho ' . $product->title . ' ở thời điểm hiện tại.';
 
                 $response = [
                     'fulfillmentText' => $promotionText,
@@ -244,9 +289,26 @@ class DialogflowController extends Controller
                 ];
             }
         } else {
-            $response = [
-                'fulfillmentText' => 'Please specify a product name.',
-            ];
+            // Fetch all promotions currently active
+            $promotions = ProductFlashSale::where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+                ->get();
+
+            if ($promotions->isEmpty()) {
+                $response = [
+                    'fulfillmentText' => 'Hiện không có chương trình khuyến mãi nào.',
+                ];
+            } else {
+                $promotionText = 'Các chương trình khuyến mãi hiện có:' . "\n";
+                foreach ($promotions as $promotion) {
+                    $product = Product::find($promotion->product_id);
+                    $promotionText .= 'Giảm giá ' . $promotion->discount_rate . '% cho sản phẩm ' . $product->title . "\n";
+                }
+
+                $response = [
+                    'fulfillmentText' => $promotionText,
+                ];
+            }
         }
 
         return response()->json($response);
@@ -306,5 +368,51 @@ class DialogflowController extends Controller
                 'fulfillmentText' => 'Please specify a product name.',
             ]);
         }
+    }
+    private function handleDelivery(Request $request)
+    {
+        // Extract necessary parameters from the request
+        $orderId = $request->input('queryResult.parameters.order_id')[0] ?? null;
+        $queryType = $request->input('queryResult.parameters.query_type');
+
+        if (!$orderId || !$queryType) {
+            $response = [
+                'fulfillmentText' => 'Vui lòng cung cấp đầy đủ thông tin về mã đơn hàng và loại thông tin cần tra cứu.',
+            ];
+            return response()->json($response);
+        }
+
+        // Retrieve order information from the database
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            $response = [
+                'fulfillmentText' => 'Xin lỗi, không tìm thấy thông tin cho đơn hàng có mã ' . $orderId . '.',
+            ];
+            return response()->json($response);
+        }
+
+        // Process based on query type (delivery time or shipping cost)
+        $responseText = '';
+
+        switch ($queryType) {
+            case 'delivery_time':
+                $deliveryTime = $order->estimated_delivery_time;
+                $responseText = 'Thời gian dự kiến đơn hàng số ' . $orderId . ' đến nơi là ' . $deliveryTime . '.';
+                break;
+            case 'shipping_cost':
+                $shippingCost = $order->shipping_cost;
+                $responseText = 'Chi phí vận chuyển của đơn hàng số ' . $orderId . ' là ' . $shippingCost . '.';
+                break;
+            default:
+                $responseText = 'Xin lỗi, tôi không thể xử lý yêu cầu này.';
+                break;
+        }
+
+        $response = [
+            'fulfillmentText' => $responseText,
+        ];
+
+        return response()->json($response);
     }
 }
