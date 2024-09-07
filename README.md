@@ -1,38 +1,46 @@
-Laravel Vue.js E-commerce
+# Laravel Vue.js E-commerce
 
-Introduction
+## Introduction
 
 This is a full-stack e-commerce website built with Laravel for the back-end and Vue.js for the front-end. It includes features such as user authentication, product management, a shopping cart, online payment integration, and a sales support chatbot.
 
-Features
+## Features
 
 User authentication (registration, login, password reset).
 
-Product browsing, searching, and filtering.
+- Product browsing, searching, and filtering.
 
-Shopping cart and order management.
+- Shopping cart and order management.
 
-Integrated Stripe and VNPAY for online payments.
+- Integrated Stripe and VNPAY for online payments.
 
-Sales support chatbot using Dialogflow API.
+- Sales support chatbot using Dialogflow API.
 
-Delivery calculation via Giao Hang Nhanh API.
+- Delivery calculation via Giao Hang Nhanh API.
 
-Responsive design built with PrimeVue and Tailwind CSS.
+- Responsive design built with PrimeVue and Tailwind CSS.
 
-Technologies Used
-Back-end: Laravel
+## Installation
 
-Front-end: Vue.js 3, PrimeVue, Tailwind CSS
+1.Clone the repository:
 
-Database: MySQL
+`git clone https://github.com/vinhkoi/laravel-vuejs.git`
 
-Payment Integration: Stripe, VNPAY
+2.Install PHP dependencies:
 
-Chatbot: Dialogflow API
+`composer install`
 
-Shipping API: Giao Hang Nhanh API
+3.Install Node.js dependencies:
 
-Version Control: Git, GitHub
+`npm install`
 
+4.Run database migrations:
+
+`php artisan migrate`
+
+5.Run project:
+
+`php artisan serve`
+
+`npm run dev`
 
